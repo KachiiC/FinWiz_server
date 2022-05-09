@@ -1,4 +1,4 @@
-export interface singleStockProps {
+export interface SingleStockProps {
     name: String;
     value: Number
     code: String;
@@ -9,15 +9,15 @@ export interface singleStockProps {
 }
 
 export interface StocksListProps {
-    stocks_list: singleStockProps[];
+    stocks_list: SingleStockProps[];
     total_value: Number,
     total_amount: Number,
-    oldest_stock: singleStockProps
-    newest_stock: singleStockProps
-    highest_quantity: singleStockProps
+    oldest_stock: SingleStockProps
+    newest_stock: SingleStockProps
+    highest_quantity: SingleStockProps
     highest_quantity_amount: Number
     highest_value: Number
     lowest_value: Number
-    bought_most: singleStockProps
-    sold_most: singleStockProps
+    bought_most: SingleStockProps
+    sold_most: SingleStockProps
 }
