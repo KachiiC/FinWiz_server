@@ -1,14 +1,14 @@
-import Express, { json } from 'express';
-import router from './router';
+import Express, { json } from 'express'
+import router from './router'
 import cors from 'cors'
 
-const app = Express();
+const App = Express()
 const PORT = 8000
 
-app.use(cors())
+App.use(cors())
     .use(json())
     .use(router)
 
-app.listen(PORT, () => {
-    console.log(`The application is listening on port http://127.0.0.1:${PORT}/`);
+App.listen(PORT, () => {
+    console.log(`Running at http://127.0.0.1:${PORT}/`);
 })

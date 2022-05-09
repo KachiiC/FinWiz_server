@@ -1,23 +1,24 @@
 export interface SingleStockProps {
-    name: String;
-    value: Number
-    code: String;
-    entry_value: Number
-    quantity: Number
-    first_bought: String;
-    last_bought: String;
+    name: string
+    symbol: string
+    market_value_per_share: number
+    entry_value_per_share: number
+    number_of_shares: number
+    total_value_of_shares: number
+    first_bought: string
+    last_bought: string
 }
 
 export interface StocksListProps {
-    stocks_list: SingleStockProps[];
-    total_value: Number,
-    total_amount: Number,
+    stocks_list: SingleStockProps[]
+    total_value_of_stocks: number
+    number_of_different_stocks: number
     oldest_stock: SingleStockProps
     newest_stock: SingleStockProps
-    highest_quantity: SingleStockProps
-    highest_quantity_amount: Number
-    highest_value: Number
-    lowest_value: Number
-    bought_most: SingleStockProps
-    sold_most: SingleStockProps
+    stock_with_most_shares: SingleStockProps
+    number_of_most_shares: number
+    highest_investment_total: number
+    highest_value_stock_price: number
+    lowest_value_stock_price: number
+
 }

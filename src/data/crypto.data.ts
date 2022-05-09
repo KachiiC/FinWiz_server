@@ -2,69 +2,71 @@ import { CryptoListProps } from "controllers/interfaces/crypto.controllers.inter
 
 const BitCoin = {
     name: 'BitCoin',
-    value: 33625.620,
-    code: 'BTC',
-    entry_time: '2022-04-09T09:21:00.000Z',
-    entry_value: 33620.40,
-    current_time: '2022-05-09T10:48:00.000Z',
+    market_value_per_crypto: 33625.62,
+    symbol: 'BTC',
+    entry_value_per_crypto: 33620.4,
+    quantity_of_crypto: 0.03,
+    total_crypto_value: 1008.769,
     first_bought: '2022-04-09T09:21:00.000Z',
     last_bought: '2022-05-03T10:48:00.000Z'
-}
-
-const LiteCoin = {
+  }
+  ​
+  const LiteCoin = {
     name: 'LiteCoin',
-    value: 91.401,
-    code: 'LTC',
-    entry_time: '2022-03-09T09:21:00.000Z',
-    entry_value: 90.300,
-    current_time: '2022-05-09T10:48:00.000Z',
+    market_value_per_crypto: 91.401,
+    symbol: 'LTC',
+    entry_value_per_crypto: 90.3,
+    quantity_of_crypto: 1.2,
+    total_crypto_value: 109.68,
     first_bought: '2022-03-09T09:21:00.000Z',
     last_bought: '2022-04-03T10:48:00.000Z'
-}
-
-const DogeCoin = {
+  }
+  ​
+  const DogeCoin = {
     name: 'DogeCoin',
-    value: 0.124,
-    code: 'DOGE',
-    entry_time: '2022-01-14T12:21:00.000Z',
-    entry_value: 0.127,
-    current_time: '2022-05-09T10:48:00.000Z',
+    market_value_per_crypto: 0.124,
+    symbol: 'DOGE',
+    entry_value_per_crypto: 0.127,
+    quantity_of_crypto: 140,
+    total_crypto_value: 17.36,
     first_bought: '2022-01-12T12:21:00.000Z',
     last_bought: '2022-01-14T12:21:00.000Z'
-}
-
-const Monero = {
+  }
+  ​
+  const Monero = {
     name: 'Monero',
-    value: 210.323,
-    code: 'XMR',
-    entry_time: '2022-02-10T18:30:00.000Z',
-    entry_value: 209.400,
-    current_time: '2022-05-09T10:48:00.000Z',
+    market_value_per_crypto: 210.323,
+    symbol: 'XMR',
+    entry_value_per_crypto: 209.4,
+    quantity_of_crypto: 2.5,
+    total_crypto_value: 525.8,
     first_bought: '2022-02-10T18:30:00.000Z',
     last_bought: '2022-02-18T18:30:00.000Z'
-}
-
-const Stellar = {
+  }
+  ​
+  const Stellar = {
     name: 'Stellar',
-    value: 0.168,
-    code: 'XLM',
-    entry_time: '2022-02-20T10:30:00.000Z',
-    entry_value: 0.165,
-    current_time: '2022-05-09T10:48:00.000Z',
+    market_value_per_crypto: 0.168,
+    symbol: 'XLM',
+    entry_value_per_crypto: 0.165,
+    quantity_of_crypto: 400,
+    total_crypto_value: 67.2,
     first_bought: '2022-04-10T18:30:00.000Z',
     last_bought: '2022-05-04T10:20:00.000Z'
-}
+  }
 
 const cryptoMockData: CryptoListProps = {
     crypto_list: [BitCoin, LiteCoin, DogeCoin, Monero, Stellar],
-    total_value: 33927.636,
-    total_amount: 5,
-    highest_value: BitCoin,
-    lowest_value: DogeCoin,
-    newest: Stellar,
-    oldest: DogeCoin,
-    highest_quantity: DogeCoin,
-    lowest_quantity: BitCoin
+    total_value_of_crypto: 1728.817,
+    number_of_different_crypto: 5,
+    highest_invested_crypto: "BitCoin",
+    highest_invested_crypto_total: 1008.769,
+    highest_valued_per_crypto: BitCoin,
+    lowest_valued_per_crypto: DogeCoin,
+    highest_quantity_crypto: Stellar,
+    lowest_quantity_crypto: BitCoin,
+    newest_crypto_bought: Stellar,
+    oldest_crypto_bought: DogeCoin,
 }
 
 export default cryptoMockData

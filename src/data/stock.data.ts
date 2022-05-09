@@ -2,71 +2,70 @@ import { StocksListProps } from "controllers/interfaces/stock.controllers.interf
 
 const Apple = {
     name: 'Apple Inc',
-    value: 157.28,
-    code: 'AAPL',
-    entry_value: 156.20,
-    quantity: 10,
+    market_value_per_share: 157.28,
+    symbol: 'AAPL',
+    entry_value_per_share: 156.2,
+    number_of_shares: 10,
+    total_value_of_shares: 1572.8,
     first_bought: '2022-04-06T09:21:00.000Z',
-    last_bought: '2022-04-06T09:21:00.000Z'
+    last_bought: '2022-05-03T11:21:00.000Z'
 }
 
 const Facebook = {
     name: 'Meta Platforms Inc - Class A',
-    value: 203.77,
-    code: 'FB',
-    entry_value: 204.35,
-    quantity: 5,
+    market_value_per_share: 203.77,
+    symbol: 'FB',
+    entry_value_per_share: 204.35,
+    number_of_shares: 5,
+    total_value_of_shares: 1018.85,
     first_bought: '2021-12-06T09:21:00.000Z',
-    last_bought: '2021-12-06T09:21:00.000Z'
+    last_bought: '2022-02-10T14:30:00.000Z'
 }
 
 const Tesla = {
     name: 'Tesla Inc',
-    value: 865.65,
-    code: 'TSLA',
-    entry_value: 868.00,
-    quantity: 3,
+    market_value_per_share: 865.65,
+    symbol: 'TSLA',
+    entry_value_per_share: 868,
+    number_of_shares: 3,
+    total_value_of_shares: 2596.95,
     first_bought: '2022-01-06T14:45:00.000Z',
     last_bought: '2022-02-04T14:45:00.000Z'
 }
 
 const Microsoft = {
     name: 'Microsoft Corporation',
-    value: 274.73,
-    code: 'MSFT',
-    entry_value: 274.88,
-    quantity: 6,
+    market_value_per_share: 274.73,
+    symbol: 'MSFT',
+    entry_value_per_share: 274.88,
+    number_of_shares: 6,
+    total_value_of_shares: 1648.38,
     first_bought: '2022-03-15T13:30:00.000Z',
     last_bought: '2022-04-15T11:30:00.000Z'
 }
 
 const Google = {
     name: 'Alphabet Inc - Class C',
-    value: 2313.2,
-    code: 'GOOG',
-    entry_value: 2316.23,
-    quantity: 2,
+    market_value_per_share: 2313.2,
+    symbol: 'GOOG',
+    entry_value_per_share: 2316.23,
+    number_of_shares: 2,
+    total_value_of_shares: 4626.4,
     first_bought: '2022-04-07T10:30:00.000Z',
     last_bought: '2022-04-07T10:30:00.000Z'
 }
 
 const stockMockData: StocksListProps = {
-    stocks_list: [Apple,
-        Facebook,
-        Tesla,
-        Microsoft,
-        Google
-    ],
-    total_value: 11463.38,
-    total_amount: 5,
+    stocks_list: [Apple, Facebook, Tesla, Microsoft, Google],
+    total_value_of_stocks: 11463.38,
+    number_of_different_stocks: 5,
     oldest_stock: Facebook,
     newest_stock: Google,
-    highest_quantity: Apple,
-    highest_quantity_amount: 10,
-    highest_value: 4626.4,
-    lowest_value: 1018.85,
-    bought_most: Apple,
-    sold_most: Tesla
+    stock_with_most_shares: Apple,
+    number_of_most_shares: 10,
+    highest_investment_total: 4626.4,
+    highest_value_stock_price: 2313.2,
+    lowest_value_stock_price: 157.28,
 }
 
 export default stockMockData
