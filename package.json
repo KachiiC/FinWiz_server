@@ -2,11 +2,11 @@
   "name": "finwiz_server",
   "version": "1.0.0",
   "description": "The server for finwiz",
-  "main": "index.ts",
+  "main": "src/index.ts",
   "scripts": {
     "build": "tsc --project ./",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon index.ts"
+    "start": "nodemon src/index.ts"
   },
   "repository": {
     "type": "git",
