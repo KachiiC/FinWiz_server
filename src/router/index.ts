@@ -6,8 +6,8 @@ import { Router } from 'express';
 
 const router = Router();
 
-router.get('/user-stock', getUserStocks)
-router.get('/user-crypto', getUserCrypto)
+router.get('/user-stock/:stocklist', getUserStocks)
+router.get('/user-crypto/:cryptolist', getUserCrypto)
 router.get('/stock-list-:type', getStockList)
 
 export default router;
