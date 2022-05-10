@@ -1,0 +1,74 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Stock
+
+// The UserStock is going to belong to a User. A User can have many UserStocks. 
+// The UserStock has details about a SingleStock. When the user clicks on 'Add Stock' on FE and fills in details
+// of a stock, entry_value_per_share, and number_of_shares etc, this UserStock table will hold the details in the DB.
+// When we create the custom Stocks object to send to FE, we need to get the list of UserStock and calculate total_value_of_shares
+
+model UserStock {
+  id Int @default(autoincrement()) @id
+  user User @relation(fields: [user_id], references: [id])
+  user_id Int
+  entry_value_per_share Float
+  number_of_shares Int
+  first_bought DateTime
+  last_bought DateTime
+  details SingleStock @relation(fields: [single_stock_id], references: [id])
+  single_stock_id Int
+}
+
+// The SingleStock has details about one particular Stock - its market value per share. Many users may want to know details about this
+// particular Stock so it can belong to a lot of UserStock.
+
+model SingleStock {
+  id Int @default(autoincrement()) @id
+  symbol String 
+  name String
+  market_value_per_share Float
+  user_stock UserStock[]
+ }
+
+// Crypto
+
+model UserCrypto {
+  id Int @default(autoincrement()) @id
+  user User @relation(fields: [user_id], references: [id])
+  user_id Int
+  quantity_of_crypto Float
+  first_bought DateTime
+  last_bought DateTime
+  details SingleCrypto @relation(fields: [single_crypto_id], references: [id])
+  single_crypto_id Int
+}
+
+// The Crypto is similar to the SingleStock where it has details about one particular Crypto. Many users may want to know details about this 
+// particular Crypto.
+model SingleCrypto {
+  id Int @default(autoincrement()) @id
+  symbol String
+  name String
+  market_value_per_crypto Float
+  user_crypto UserCrypto[]
+}
+
+// User
+
+model User {
+  id Int @default(autoincrement()) @id
+  email String @unique
+  name String
+  stocks UserStock[]
+  cryptos UserCrypto[]
+}
