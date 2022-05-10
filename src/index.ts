@@ -1,7 +1,10 @@
+
+import dotenv from "dotenv"
 import Express, { json } from 'express'
 import router from './router'
 import cors from 'cors'
 
+dotenv.config()
 const App = Express()
 const PORT = 8000
 
