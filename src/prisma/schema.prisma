@@ -1,0 +1,61 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id Int @default(autoincrement()) @id
+  email String @unique
+  name String
+  stocks UserStock[]
+  cryptos UserCrypto[]
+}
+
+model UserStock {
+  id Int @default(autoincrement()) @id
+  user User @relation(fields: [user_id], references: [id])
+  user_id Int
+  entry_value_per_share Float
+  number_of_shares Int
+  total_value_of_shares Float
+  first_bought DateTime
+  last_bought DateTime
+  details SingleStock @relation(fields: [single_stock_id], references: [id])
+  single_stock_id Int
+}
+
+model SingleStock {
+  id Int @default(autoincrement()) @id
+  symbol String 
+  name String
+  market_value_per_share Float
+  user_stock UserStock[]
+ }
+
+model UserCrypto {
+  id Int @default(autoincrement()) @id
+  user User @relation(fields: [user_id], references: [id])
+  user_id Int
+  quantity_of_crypto Float
+  average_value_per_crypto Float
+  total_crypto_value Float
+  first_bought DateTime
+  last_bought DateTime
+  details SingleCrypto @relation(fields: [single_crypto_id], references: [id])
+  single_crypto_id Int
+}
+
+model SingleCrypto {
+  id Int @default(autoincrement()) @id
+  symbol String
+  name String
+  market_value_per_crypto Float
+  user_crypto UserCrypto[]
+}
