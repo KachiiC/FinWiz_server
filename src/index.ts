@@ -1,4 +1,3 @@
-
 import dotenv from "dotenv"
 import Express, { json } from 'express'
 import router from './router'
