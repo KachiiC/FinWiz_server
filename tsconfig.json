@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "baseUrl": "src",
-    "outDir": "src",
     "target": "es2016",
     "noImplicitAny": false,
     "module": "commonjs",
