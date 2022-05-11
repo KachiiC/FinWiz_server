@@ -1,0 +1,102 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                   Int                    @id @default(autoincrement())
+  sub                  String                 @unique
+  totalInvestmentValue Float                  @default(0)
+  investmentValues     UserInvestmentValues[]
+  stocks               StockSummary?
+  cryptos              CryptoSummary?
+}
+
+model UserInvestmentValues {
+  id       Int      @id @default(autoincrement())
+  sub      String
+  dateTime DateTime
+  value    Float
+  user     User     @relation(fields: [sub], references: [sub])
+}
+
+// Stock
+
+model StockSummary {
+  id                     Int         @id @default(autoincrement())
+  sub                    String      @unique
+  currentTotalAmount     Float
+  oldestStock            String
+  newestStock            String
+  stockWithMostShares    String
+  highestInvestmentStock String
+  userStock              UserStock[]
+  user                   User        @relation(fields: [sub], references: [sub])
+}
+
+model UserStock {
+  id                 Int           @id @default(autoincrement())
+  sub                String
+  symbol             String
+  entryValuePerShare Float
+  numberOfShares     Int
+  totalValueOfShares Float
+  firstBought        DateTime
+  lastBought         DateTime
+  details            SingleStock   @relation(fields: [symbol], references: [symbol])
+  StockSummary       StockSummary? @relation(fields: [sub], references: [sub])
+}
+
+model SingleStock {
+  id                  Int         @id @default(autoincrement())
+  symbol              String      @unique
+  name                String
+  marketValuePerShare Float
+  userStock           UserStock[]
+}
+
+// Crypto
+
+model CryptoSummary {
+  id                      Int          @id @default(autoincrement())
+  sub                     String       @unique
+  cryptoList              UserCrypto[]
+  totalValueOf            Float
+  numberOfDifferent       Int
+  highestInvestedCurrency String
+  highestValuePerCurrency String
+  lowestValuePerCurrency  String
+  highestOwnedVolume      String
+  lowestOwnedVolume       String
+  newestBoughtCurrency    String
+  oldestBoughtCurrency    String
+  user                    User         @relation(fields: [sub], references: [sub])
+}
+
+model UserCrypto {
+  id                    Int            @id @default(autoincrement())
+  sub                   String         @unique
+  symbol                String
+  quantityOfCrypto      Float
+  averageValuePerCrypto Float
+  totalCryptoValue      Float
+  firstBought           DateTime
+  lastBought            DateTime
+  details               SingleCrypto   @relation(fields: [symbol], references: [symbol])
+  cryptoSummary         CryptoSummary? @relation(fields: [sub], references: [sub])
+}
+
+model SingleCrypto {
+  id                   Int          @id @default(autoincrement())
+  symbol               String       @unique
+  name                 String
+  marketValuePerCrypto Float
+  userCrypto           UserCrypto[]
+}

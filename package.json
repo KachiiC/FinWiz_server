@@ -1,0 +1,37 @@
+{
+  "name": "finwiz_server",
+  "version": "1.0.0",
+  "description": "The server for finwiz",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc --project ./",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon src/index.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KachiiC/FinWiz_server.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/KachiiC/FinWiz_server/issues"
+  },
+  "homepage": "https://github.com/KachiiC/FinWiz_server#readme",
+  "dependencies": {
+    "@prisma/client": "^3.13.0",
+    "axios": "^0.27.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.0",
+    "express": "^4.18.1"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.12",
+    "@types/express": "^4.17.13",
+    "@types/node": "^17.0.31",
+    "prisma": "^3.13.0",
+    "ts-node": "^10.7.0",
+    "typescript": "^4.6.4"
+  }
+}
