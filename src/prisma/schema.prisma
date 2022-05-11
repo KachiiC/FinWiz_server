@@ -22,7 +22,6 @@ model User {
 model UserInvestmentValues {
   id       Int      @id @default(autoincrement())
   sub      String
-  symbol   String
   dateTime DateTime
   value    Float
   user     User     @relation(fields: [sub], references: [sub])
