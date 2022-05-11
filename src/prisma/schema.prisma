@@ -11,51 +11,93 @@ datasource db {
 }
 
 model User {
-  id Int @default(autoincrement()) @id
-  email String @unique
-  name String
-  stocks UserStock[]
-  cryptos UserCrypto[]
+  id                   Int                    @id @default(autoincrement())
+  sub                  String                 @unique
+  totalInvestmentValue Float                  @default(0)
+  investmentValues     UserInvestmentValues[]
+  stocks               StockSummary?
+  cryptos              CryptoSummary?
+}
+
+model UserInvestmentValues {
+  id       Int      @id @default(autoincrement())
+  sub      String
+  symbol   String
+  dateTime DateTime
+  value    Float
+  user     User     @relation(fields: [sub], references: [sub])
+}
+
+// Stock
+
+model StockSummary {
+  id                     Int         @id @default(autoincrement())
+  sub                    String      @unique
+  currentTotalAmount     Float
+  oldestStock            String
+  newestStock            String
+  stockWithMostShares    String
+  highestInvestmentStock String
+  userStock              UserStock[]
+  user                   User        @relation(fields: [sub], references: [sub])
 }
 
 model UserStock {
-  id Int @default(autoincrement()) @id
-  user User @relation(fields: [user_id], references: [id])
-  user_id Int
-  entry_value_per_share Float
-  number_of_shares Int
-  total_value_of_shares Float
-  first_bought DateTime
-  last_bought DateTime
-  details SingleStock @relation(fields: [single_stock_id], references: [id])
-  single_stock_id Int
+  id                 Int           @id @default(autoincrement())
+  sub                String
+  symbol             String
+  entryValuePerShare Float
+  numberOfShares     Int
+  totalValueOfShares Float
+  firstBought        DateTime
+  lastBought         DateTime
+  details            SingleStock   @relation(fields: [symbol], references: [symbol])
+  StockSummary       StockSummary? @relation(fields: [sub], references: [sub])
 }
 
 model SingleStock {
-  id Int @default(autoincrement()) @id
-  symbol String 
-  name String
-  market_value_per_share Float
-  user_stock UserStock[]
- }
+  id                  Int         @id @default(autoincrement())
+  symbol              String      @unique
+  name                String
+  marketValuePerShare Float
+  userStock           UserStock[]
+}
+
+// Crypto
+
+model CryptoSummary {
+  id                      Int          @id @default(autoincrement())
+  sub                     String       @unique
+  cryptoList              UserCrypto[]
+  totalValueOf            Float
+  numberOfDifferent       Int
+  highestInvestedCurrency String
+  highestValuePerCurrency String
+  lowestValuePerCurrency  String
+  highestOwnedVolume      String
+  lowestOwnedVolume       String
+  newestBoughtCurrency    String
+  oldestBoughtCurrency    String
+  user                    User         @relation(fields: [sub], references: [sub])
+}
 
 model UserCrypto {
-  id Int @default(autoincrement()) @id
-  user User @relation(fields: [user_id], references: [id])
-  user_id Int
-  quantity_of_crypto Float
-  average_value_per_crypto Float
-  total_crypto_value Float
-  first_bought DateTime
-  last_bought DateTime
-  details SingleCrypto @relation(fields: [single_crypto_id], references: [id])
-  single_crypto_id Int
+  id                    Int            @id @default(autoincrement())
+  sub                   String         @unique
+  symbol                String
+  quantityOfCrypto      Float
+  averageValuePerCrypto Float
+  totalCryptoValue      Float
+  firstBought           DateTime
+  lastBought            DateTime
+  details               SingleCrypto   @relation(fields: [symbol], references: [symbol])
+  cryptoSummary         CryptoSummary? @relation(fields: [sub], references: [sub])
 }
 
 model SingleCrypto {
-  id Int @default(autoincrement()) @id
-  symbol String
-  name String
-  market_value_per_crypto Float
-  user_crypto UserCrypto[]
+  id                   Int          @id @default(autoincrement())
+  symbol               String       @unique
+  name                 String
+  marketValuePerCrypto Float
+  userCrypto           UserCrypto[]
 }
