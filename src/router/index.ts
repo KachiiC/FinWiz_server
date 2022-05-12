@@ -1,15 +1,16 @@
 // CONTROLLERS
 import { getStockList, getUserStocks, addUserStock } from '../controllers/stock.controllers';
 import { getUserCrypto, addUserCrypto } from '../controllers/crypto.controllers';
-import { getDummyStocks }  from '../controllers/dummy.controllers';
+import { getDummyStocks } from '../controllers/dummy.controllers';
 // ROUTER
 import { Router } from 'express';
+import { stockListCache } from '../middleware/stocklist.middleware';
 
 const router = Router();
 
 router.get('/user-stock/:stocklist', getUserStocks)
 router.get('/user-crypto/:cryptolist', getUserCrypto)
-router.get('/stock-list-:type', getStockList)
+router.get('/stock-list-:type', stockListCache, getStockList)
 router.get('/test-user', getDummyStocks)
 
 router.post('/user-add-stock', addUserStock)

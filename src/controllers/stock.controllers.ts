@@ -1,45 +1,40 @@
-// TYPES
 import { Request, Response } from 'express'
 import { iexApiStockList, iexApiStockQuotes } from "../helpers/urls"
 import { getRequest } from "../helpers/apiRequests"
 import Prisma from '../models/index'
-import { createStockList } from '../models/stock.models'
-
+import { stockListModel } from '../models/stock.models'
+import { stockCache } from '../middleware/node.cache'
 
 export const getUserStocks = async (req: Request, res: Response) => {
 
-    const url = iexApiStockQuotes(req.params.stocklist)
+  const url = iexApiStockQuotes(req.params.stocklist)
 
-    try {
-        const data = await getRequest(url)
-        
-        res.send(data.data)
-    } catch (err) {
-        console.error(err)
-        res.sendStatus(404)
-    }
+  try {
+    const data = await getRequest(url)
+
+    res.send(data.data)
+  } catch (err) {
+    console.error(err)
+    res.sendStatus(404)
+  }
 }
 
 export const getStockList = async (req: Request, res: Response) => {
+  const { type } = req.params
 
-  const url = iexApiStockList(req.params.type)
+  const url = iexApiStockList(type)
+
   try {
-      const stockResponse = await getRequest(url)
+    const stockResponse = await getRequest(url)
 
-      const inputData = stockResponse.data.map((stock) => {
-          const { symbol, companyName, latestPrice } = stock
-          return {
-              symbol,
-              name: companyName,
-              marketValuePerShare: latestPrice
-          }
-      })
-      const resData = await createStockList(inputData)
+    const resData = stockListModel(stockResponse.data)
 
-      res.send(resData)
+    stockCache.set(type, resData);
+
+    res.status(200).send(resData)
   } catch (err) {
-      console.error(err)
-      res.sendStatus(404)
+    console.error(err)
+    res.sendStatus(404)
   }
 }
 
@@ -47,13 +42,13 @@ export const addUserStock = async (req: Request, res: Response) => {
 
   try {
 
-    const { 
-      symbol, 
-      quantity, 
+    const {
+      symbol,
+      quantity,
       buyCost,
       date,
-      sub 
-      } = req.body
+      sub
+    } = req.body
 
     const singleStock = await Prisma.singleStock.findUnique({
       where: {
@@ -64,7 +59,7 @@ export const addUserStock = async (req: Request, res: Response) => {
     if (!singleStock) {
       // TODO singleStock not found in DB- need API call to find market value of stock
     }
-    
+
     const marketValuePerShare = singleStock?.marketValuePerShare
     const totalValueOfShares = quantity * (marketValuePerShare as number)
 
@@ -100,16 +95,16 @@ export const addUserStock = async (req: Request, res: Response) => {
         sub: sub
       },
       include: {
-        investmentValues :true,
+        investmentValues: true,
         stocks: {
-          include: { userStock: true}
+          include: { userStock: true }
         },
         cryptos: {
-          include: { cryptoList: true}
+          include: { cryptoList: true }
         }
       }
     })
-    
+
     res.status(201)
     res.json(userRecord)
 
@@ -145,21 +140,21 @@ const stockSummary = async (sub: string, symbol: string, quantity: number, buyCo
       prev = new Date(prev.firstBought).getTime() < new Date(curr.firstBought).getTime() ? prev : curr
       return prev
     })
-  
+
     newestStock = listOfUserStocks.reduce((prev, curr) => {
       prev = new Date(prev.firstBought).getTime() > new Date(curr.firstBought).getTime() ? prev : curr
       return prev
     })
-  
+
     stockWithMostShares = listOfUserStocks.reduce((prev, curr) => {
       prev = prev.numberOfShares > curr.numberOfShares ? prev : curr
       return prev
     })
-  
+
     currentTotalAmount = listOfUserStocks.reduce((prev, curr) => {
       return prev + curr.totalValueOfShares
     }, 0)
-    
+
     highestInvestmentStock = listOfUserStocks.reduce((prev, curr) => {
       prev = prev.totalValueOfShares > curr.totalValueOfShares ? prev : curr
       return prev
@@ -171,7 +166,7 @@ const stockSummary = async (sub: string, symbol: string, quantity: number, buyCo
     currentTotalAmount = quantity * buyCost
     highestInvestmentStock = symbol
   }
-  
+
   if (!stockSummary) {
     stockSummary = await Prisma.stockSummary.create({
       data: {
@@ -183,15 +178,15 @@ const stockSummary = async (sub: string, symbol: string, quantity: number, buyCo
         highestInvestmentStock: highestInvestmentStock
       }
     })
-   } else {
-     stockSummary.currentTotalAmount = currentTotalAmount
-     stockSummary.oldestStock = oldestStock.symbol
-     stockSummary.newestStock = newestStock.symbol
-     stockSummary.stockWithMostShares = stockWithMostShares.symbol
-     stockSummary.highestInvestmentStock = highestInvestmentStock.symbol
-   }
+  } else {
+    stockSummary.currentTotalAmount = currentTotalAmount
+    stockSummary.oldestStock = oldestStock.symbol
+    stockSummary.newestStock = newestStock.symbol
+    stockSummary.stockWithMostShares = stockWithMostShares.symbol
+    stockSummary.highestInvestmentStock = highestInvestmentStock.symbol
+  }
 
-   return stockSummary
+  return stockSummary
 }
 
 export const investmentValues = async (sub: string, dateTime: Date, valueToAdd: number) => {
@@ -199,13 +194,13 @@ export const investmentValues = async (sub: string, dateTime: Date, valueToAdd: 
   const listOfUserInvestments = await Prisma.userInvestmentValues.findMany({
     where: {
       sub: sub
-     }
+    }
   })
 
   let totalInvestmentValueToDate
 
   if (listOfUserInvestments.length > 0) {
-     totalInvestmentValueToDate = listOfUserInvestments.reduce((prev, curr) => {
+    totalInvestmentValueToDate = listOfUserInvestments.reduce((prev, curr) => {
       return prev + curr.value
     }, 0)
   } else {
@@ -219,6 +214,6 @@ export const investmentValues = async (sub: string, dateTime: Date, valueToAdd: 
       value: totalInvestmentValueToDate
     }
   })
-  
+
   return userInvestmentValue
 }
