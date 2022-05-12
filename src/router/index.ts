@@ -5,14 +5,17 @@ import { getDummyStocks } from '../controllers/dummy.controllers';
 // ROUTER
 import { Router } from 'express';
 import { stockListCache } from '../middleware/stocklist.middleware';
+import { newsListCache } from '../middleware/newslist.middleware';
+import { getNewsList } from '../controllers/news.controllers';
 
 const router = Router();
 
 router.get('/user-stock/:stocklist', getUserStocks)
 router.get('/user-crypto/:cryptolist', getUserCrypto)
 router.get('/stock-list-:type', stockListCache, getStockList)
-router.get('/test-user', getDummyStocks)
+router.get('/news', newsListCache, getNewsList)
 
+router.get('/test-user', getDummyStocks)
 router.post('/user-add-stock', addUserStock)
 router.post('/user-add-crypto', addUserCrypto)
 

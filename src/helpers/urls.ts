@@ -9,3 +9,5 @@ export const iexApiStockList = (stock_list: string) => {
 export const cryptoUrl = (crypto_list: string) => {
     return `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?slug=${crypto_list}`
 } 
+
+export const newsUrl = () => `https://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=${process.env.NEWS_KEY}`
