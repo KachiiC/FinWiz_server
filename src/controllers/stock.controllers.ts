@@ -2,9 +2,9 @@
 import { Request, Response } from 'express'
 import { iexApiStockList, iexApiStockQuotes } from "../helpers/urls"
 import { getRequest } from "../helpers/apiRequests"
-import { PrismaClient } from '@prisma/client';
+import Prisma from '../models/index'
+import { createStockList } from '../models/stock.models'
 
-const prisma = new PrismaClient();
 
 export const getUserStocks = async (req: Request, res: Response) => {
 
@@ -22,15 +22,25 @@ export const getUserStocks = async (req: Request, res: Response) => {
 
 export const getStockList = async (req: Request, res: Response) => {
 
-    const url = iexApiStockList(req.params.type)
-    try {
-        const data = await getRequest(url)
+  const url = iexApiStockList(req.params.type)
+  try {
+      const stockResponse = await getRequest(url)
 
-        res.send(data.data)
-    } catch (err) {
-        console.error(err)
-        res.sendStatus(404)
-    }
+      const inputData = stockResponse.data.map((stock) => {
+          const { symbol, companyName, latestPrice } = stock
+          return {
+              symbol,
+              name: companyName,
+              marketValuePerShare: latestPrice
+          }
+      })
+      const resData = await createStockList(inputData)
+
+      res.send(resData)
+  } catch (err) {
+      console.error(err)
+      res.sendStatus(404)
+  }
 }
 
 export const addUserStock = async (req: Request, res: Response) => {
@@ -44,7 +54,7 @@ export const addUserStock = async (req: Request, res: Response) => {
       sub 
       } = req.body
 
-    const singleStock = await prisma.singleStock.findUnique({
+    const singleStock = await Prisma.singleStock.findUnique({
       where: {
         symbol: symbol
       }
@@ -57,8 +67,13 @@ export const addUserStock = async (req: Request, res: Response) => {
     const marketValuePerShare = singleStock?.marketValuePerShare
     const totalValueOfShares = quantity * (marketValuePerShare as number)
 
-    // Create new record in UserStock table
-    const userStock = await prisma.userStock.create({
+    // User should already exist in DB
+
+    const userStockSummary = await stockSummary(sub, symbol, quantity, buyCost, date);
+
+    //Prisma will not let you create a userStock record with sub foreign key
+    //if there is no matching record in StockSummary
+    const userStock = await Prisma.userStock.create({
       data: {
         sub: sub,
         symbol: symbol,
@@ -70,59 +85,91 @@ export const addUserStock = async (req: Request, res: Response) => {
       }
     })
 
-    const userStockSummary = await stockSummary(sub);
-
     const userInvestmentValue = await investmentValues(sub, date, totalValueOfShares);
+
+    let userRecord = await Prisma.user.findUnique({
+      where: {
+        sub: sub
+      },
+      include: {
+        investmentValues :true,
+        stocks: {
+          include: { userStock: true}
+        },
+        cryptos: {
+          include: { cryptoList: true}
+        }
+      }
+    })
+
+    res.status(201)
+    res.json(userRecord)
 }
 
-const stockSummary = async (sub: string) => {
 
-  let stockSummary = await prisma.stockSummary.findUnique({
+const stockSummary = async (sub: string, symbol: string, quantity: number, buyCost: number, date: Date) => {
+
+  let stockSummary = await Prisma.stockSummary.findUnique({
     where: {
       sub: sub
     }
   })
 
-  const listOfUserStocks = await prisma.userStock.findMany({
+  const listOfUserStocks = await Prisma.userStock.findMany({
     where: {
       sub: sub
     }
   })
 
-  const oldestStock = listOfUserStocks.reduce((prev, curr) => {
-    prev = new Date(prev.firstBought).getTime() < new Date(curr.firstBought).getTime() ? prev : curr
-    return prev
-  })
+  let oldestStock
+  let newestStock
+  let stockWithMostShares
+  let currentTotalAmount
+  let highestInvestmentStock
 
-  const newestStock = listOfUserStocks.reduce((prev, curr) => {
-    prev = new Date(prev.firstBought).getTime() > new Date(curr.firstBought).getTime() ? prev : curr
-    return prev
-  })
-
-  const stockWithMostShares = listOfUserStocks.reduce((prev, curr) => {
-    prev = prev.numberOfShares > curr.numberOfShares ? prev : curr
-    return prev
-  })
-
-  const currentTotalAmount = listOfUserStocks.reduce((prev, curr) => {
-    return prev + curr.totalValueOfShares
-  }, 0)
+  if (listOfUserStocks.length > 0) {
+    oldestStock = listOfUserStocks.reduce((prev, curr) => {
+      prev = new Date(prev.firstBought).getTime() < new Date(curr.firstBought).getTime() ? prev : curr
+      return prev
+    })
   
-  const highestInvestmentStock = listOfUserStocks.reduce((prev, curr) => {
-    prev = prev.totalValueOfShares > curr.totalValueOfShares ? prev : curr
-    return prev
-  })
+    newestStock = listOfUserStocks.reduce((prev, curr) => {
+      prev = new Date(prev.firstBought).getTime() > new Date(curr.firstBought).getTime() ? prev : curr
+      return prev
+    })
+  
+    stockWithMostShares = listOfUserStocks.reduce((prev, curr) => {
+      prev = prev.numberOfShares > curr.numberOfShares ? prev : curr
+      return prev
+    })
+  
+    currentTotalAmount = listOfUserStocks.reduce((prev, curr) => {
+      return prev + curr.totalValueOfShares
+    }, 0)
+    
+    highestInvestmentStock = listOfUserStocks.reduce((prev, curr) => {
+      prev = prev.totalValueOfShares > curr.totalValueOfShares ? prev : curr
+      return prev
+    })
+  } else {
+    oldestStock = symbol
+    newestStock = symbol
+    stockWithMostShares = symbol
+    currentTotalAmount = quantity * buyCost
+    highestInvestmentStock = symbol
+  }
+  
 
   if (!stockSummary) {
     //StockSummary doesn't exist so need to create one
-    stockSummary = await prisma.stockSummary.create({
+    stockSummary = await Prisma.stockSummary.create({
       data: {
         sub: sub,
         currentTotalAmount: currentTotalAmount,
-        oldestStock: oldestStock.symbol,
-        newestStock: newestStock.symbol,
-        stockWithMostShares: stockWithMostShares.symbol,
-        highestInvestmentStock: highestInvestmentStock.symbol
+        oldestStock: oldestStock,
+        newestStock: newestStock,
+        stockWithMostShares: stockWithMostShares,
+        highestInvestmentStock: highestInvestmentStock
       }
     })
    } else {
@@ -136,13 +183,31 @@ const stockSummary = async (sub: string) => {
    return stockSummary
 }
 
-export const investmentValues = async (sub: string, dateTime: Date, value: number) => {
-  const userInvestmentValue = prisma.userInvestmentValues.create({
+export const investmentValues = async (sub: string, dateTime: Date, valueToAdd: number) => {
+
+  const listOfUserInvestments = await Prisma.userInvestmentValues.findMany({
+    where: {
+      sub: sub
+     }
+  })
+
+  let totalInvestmentValueToDate
+
+  if (listOfUserInvestments.length > 0) {
+     totalInvestmentValueToDate = listOfUserInvestments.reduce((prev, curr) => {
+      return prev + curr.value
+    }, 0)
+  } else {
+    totalInvestmentValueToDate = valueToAdd
+  }
+
+  const userInvestmentValue = await Prisma.userInvestmentValues.create({
     data: {
       sub: sub,
       dateTime: dateTime,
-      value: value
+      value: totalInvestmentValueToDate
     }
   })
+  
   return userInvestmentValue
 }
