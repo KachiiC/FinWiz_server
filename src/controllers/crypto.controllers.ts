@@ -3,6 +3,7 @@ import { Request, Response } from 'express'
 import { cryptoHeaders } from '../helpers/headers'
 import { cryptoUrl } from '../helpers/urls'
 import { getRequestWithHeaders } from "../helpers/apiRequests"
+import { addCrypto } from '../models/addcrypto.model'
 
 export const getUserCrypto = async (req: Request, res: Response) => {
 
@@ -24,5 +25,15 @@ export const getUserCrypto = async (req: Request, res: Response) => {
 }
 
 export const addUserCrypto = async (req: Request, res: Response) => {
-
+  
+  try {
+    const userRecord = await addCrypto(req)
+    res.status(201)
+    res.json(userRecord)
+  }catch (err) {
+    console.error('Error in addUserCrypto: ', err)
+    res.sendStatus(404)
+  }
 }
+
+
