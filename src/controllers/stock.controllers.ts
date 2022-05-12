@@ -45,11 +45,12 @@ export const getStockList = async (req: Request, res: Response) => {
 
 export const addUserStock = async (req: Request, res: Response) => {
 
+  try {
+
     const { 
       symbol, 
       quantity, 
-      buyCost, 
-      buyQuantity,
+      buyCost,
       date,
       sub 
       } = req.body
@@ -69,10 +70,8 @@ export const addUserStock = async (req: Request, res: Response) => {
 
     // User should already exist in DB
 
-    const userStockSummary = await stockSummary(sub, symbol, quantity, buyCost, date);
+    const userStockSummary = await stockSummary(sub, symbol, quantity, buyCost);
 
-    //Prisma will not let you create a userStock record with sub foreign key
-    //if there is no matching record in StockSummary
     const userStock = await Prisma.userStock.create({
       data: {
         sub: sub,
@@ -87,7 +86,16 @@ export const addUserStock = async (req: Request, res: Response) => {
 
     const userInvestmentValue = await investmentValues(sub, date, totalValueOfShares);
 
-    let userRecord = await Prisma.user.findUnique({
+    const userUpdate = await Prisma.user.update({
+      where: {
+        sub: sub
+      },
+      data: {
+        totalInvestmentValue: userInvestmentValue.value
+      }
+    })
+
+    const userRecord = await Prisma.user.findUnique({
       where: {
         sub: sub
       },
@@ -101,13 +109,18 @@ export const addUserStock = async (req: Request, res: Response) => {
         }
       }
     })
-
+    
     res.status(201)
     res.json(userRecord)
+
+  } catch (err) {
+    console.error('Error in addUserStock: ', err)
+    res.sendStatus(404)
+  }
 }
 
 
-const stockSummary = async (sub: string, symbol: string, quantity: number, buyCost: number, date: Date) => {
+const stockSummary = async (sub: string, symbol: string, quantity: number, buyCost: number) => {
 
   let stockSummary = await Prisma.stockSummary.findUnique({
     where: {
@@ -159,9 +172,7 @@ const stockSummary = async (sub: string, symbol: string, quantity: number, buyCo
     highestInvestmentStock = symbol
   }
   
-
   if (!stockSummary) {
-    //StockSummary doesn't exist so need to create one
     stockSummary = await Prisma.stockSummary.create({
       data: {
         sub: sub,
