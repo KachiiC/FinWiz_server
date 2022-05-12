@@ -1,11 +1,11 @@
-import Prisma from '.';
+export const stockListModel = (data: any[]) => {
 
-export const createStockList = async (data) => {
-
-    const creator = await Prisma.singleStock.createMany({
-        data
-    });
-
-    if (creator.count === data.length) return data
-
+    return data.map((stock) => {
+        const { symbol, companyName, latestPrice } = stock
+        return {
+            symbol,
+            name: companyName,
+            marketValuePerShare: latestPrice
+        }
+    })
 }
