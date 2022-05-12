@@ -24,5 +24,5 @@ export const getUserCrypto = async (req: Request, res: Response) => {
 }
 
 export const addUserCrypto = async (req: Request, res: Response) => {
-  
+
 }

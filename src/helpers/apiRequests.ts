@@ -7,7 +7,7 @@ export const getRequest = (url: string) => {
     })
 }
 
-export const getRequestWithHeaders = (url: string, headers: {[x: string]: string }) => {
+export const getRequestWithHeaders = (url: string, headers: { [x: string]: string }) => {
     return axios.request({
         method: "GET",
         url: url,
