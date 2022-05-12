@@ -7,8 +7,8 @@ export const stockFinder = async (symbol: string) => {
 }
 
 export const stockApiFormatter = (data, symbol) => {
-    const marketValuePerShare = data[symbol].quote.latestPrice
-    const name = data[symbol].quote.companyName
+    const marketValuePerShare = data.data[symbol].quote.latestPrice
+    const name = data.data[symbol].quote.companyName
 
     return { symbol, name, marketValuePerShare }
 }

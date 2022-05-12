@@ -29,7 +29,8 @@ export const addStock = async (req: Request) => {
         } = req.body
 
         const apiData = await stockApiData(symbol)
-        const apiDataValue = apiData[symbol].quote.latestPrice
+        
+        const apiDataValue = apiData.data[symbol].quote.latestPrice
 
         await stockUpdateOrCreate(symbol, apiData)
         
