@@ -32,11 +32,11 @@ model UserInvestmentValues {
 model StockSummary {
   id                     Int         @id @default(autoincrement())
   sub                    String      @unique
-  currentTotalAmount     Float
-  oldestStock            String
-  newestStock            String
-  stockWithMostShares    String
-  highestInvestmentStock String
+  currentTotalAmount     Float? 
+  oldestStock            String?
+  newestStock            String?
+  stockWithMostShares    String?
+  highestInvestmentStock String?
   userStock              UserStock[]
   user                   User        @relation(fields: [sub], references: [sub])
 }
@@ -82,7 +82,7 @@ model CryptoSummary {
 
 model UserCrypto {
   id                    Int            @id @default(autoincrement())
-  sub                   String         @unique
+  sub                   String         
   symbol                String
   quantityOfCrypto      Float
   averageValuePerCrypto Float
