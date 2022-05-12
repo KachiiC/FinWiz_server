@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { cryptoHeaders } from './headers'
 import { cryptoSymbolUrl } from './urls'
+import { iexApiStockQuotes } from './urls'
 
 export const getRequest = (url: string) => {
     return axios.request({
@@ -26,4 +27,12 @@ export const cryptoApiData = async (symbol: string) => {
     const result = await getRequestWithHeaders(apiUrl, apiHeader)
 
     return result.data
+}
+
+export const stockApiData = async (symbol: string) => {
+
+  const apiUrl = iexApiStockQuotes(symbol)
+  const result = await getRequestWithHeaders(apiUrl, {})
+
+  return result
 }

@@ -40,9 +40,9 @@ export const getStockList = async (req: Request, res: Response) => {
 export const addUserStock = async (req: Request, res: Response) => {
 
   try {
-    const userRecord = await addStock(req)
-    res.sendStatus(201)
-    res.json(userRecord)
+    await addStock(req)
+    res.status(201)
+    res.send('userRecord')
   } catch (err) {
     console.error('Error in addUserStock: ', err)
     res.sendStatus(404)

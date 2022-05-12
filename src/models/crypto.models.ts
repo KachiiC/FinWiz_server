@@ -18,7 +18,7 @@ export const addCrypto = async (req: Request) => {
         } = req.body
 
         const apiData = await cryptoApiData(symbol)
-        const apiDataValue = apiData.data[symbol].quotes.USD.price
+        const apiDataValue = apiData.data[symbol].quote.USD.price
 
         await cryptoUpdateOrCreate(symbol, apiData)
 
