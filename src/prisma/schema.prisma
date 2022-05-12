@@ -82,7 +82,7 @@ model CryptoSummary {
 
 model UserCrypto {
   id                    Int            @id @default(autoincrement())
-  sub                   String         @unique
+  sub                   String         
   symbol                String
   quantityOfCrypto      Float
   averageValuePerCrypto Float
