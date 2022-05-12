@@ -3,15 +3,34 @@ import { stockUpdateOrCreate } from '../helpers/stock.helpers'
 import { stockApiData } from '../helpers/apiRequests'
 import Prisma from './index'
 import { investmentValues } from './user.models'
+import { currencyRounder, percentageCalculator } from '../helpers/priceHelpers'
 
 export const stockListModel = (data: any[]) => {
 
     return data.map((stock) => {
-        const { symbol, companyName, latestPrice } = stock
+
+        const {
+            symbol,
+            companyName,
+            latestPrice,
+            change,
+            changePercent,
+            previousClose,
+            previousVolume,
+            marketCap
+        } = stock
+
+        const changeAmountLogic = change ? change : latestPrice - previousClose
+        const changePercentLogic = changePercent ? changePercent * 100 : percentageCalculator(latestPrice, previousClose)
+
         return {
             symbol,
             name: companyName,
-            marketValuePerShare: latestPrice
+            marketValuePerShare: latestPrice,
+            changeAmount: currencyRounder(changeAmountLogic),
+            changePercent: currencyRounder(changePercentLogic),
+            volume: previousVolume,
+            marketCap
         }
     })
 }
@@ -29,11 +48,11 @@ export const addStock = async (req: Request) => {
         } = req.body
 
         const apiData = await stockApiData(symbol)
-        
+
         const apiDataValue = apiData.data[symbol].quote.latestPrice
 
         await stockUpdateOrCreate(symbol, apiData)
-        
+
         const totalValueOfShares = quantity * apiDataValue
 
         await stockSummary(sub)
