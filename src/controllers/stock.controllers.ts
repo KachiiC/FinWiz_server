@@ -1,8 +1,7 @@
 import { Request, Response } from 'express'
 import { iexApiStockList, iexApiStockQuotes } from "../helpers/urls"
 import { getRequest } from "../helpers/apiRequests"
-import { addStock } from '../models/adduserstock.model'
-import { stockListModel } from '../models/stock.models'
+import { addStock, stockListModel } from '../models/stock.models'
 import { stockCache } from '../middleware/node.cache'
 
 export const getUserStocks = async (req: Request, res: Response) => {
