@@ -1,4 +1,6 @@
 import { Request } from 'express'
+import { stockUpdateOrCreate } from '../helpers/stock.helpers'
+import { stockApiData } from '../helpers/apiRequests'
 import Prisma from './index'
 import { investmentValues } from './user.models'
 
@@ -26,12 +28,13 @@ export const addStock = async (req: Request) => {
             sub
         } = req.body
 
-        const singleStock = await Prisma.singleStock.findUnique({
-            where: { symbol: symbol }
-        })
+        const apiData = await stockApiData(symbol)
+        
+        const apiDataValue = apiData.data[symbol].quote.latestPrice
 
-        const marketValuePerShare = singleStock?.marketValuePerShare
-        const totalValueOfShares = quantity * (marketValuePerShare as number)
+        await stockUpdateOrCreate(symbol, apiData)
+        
+        const totalValueOfShares = quantity * apiDataValue
 
         await stockSummary(sub)
 
@@ -53,21 +56,6 @@ export const addStock = async (req: Request) => {
             where: { sub: sub },
             data: { totalInvestmentValue: userInvestmentValue.value }
         })
-
-        const userRecord = await Prisma.user.findUnique({
-            where: { sub: sub },
-            include: {
-                investmentValues: true,
-                stocks: {
-                    include: { userStock: true }
-                },
-                cryptos: {
-                    include: { cryptoList: true }
-                }
-            }
-        })
-
-        return userRecord
 
     } catch (err) {
         console.error('Error in addUserStock: ', err)
