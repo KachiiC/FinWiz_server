@@ -55,6 +55,61 @@ const UserStock3 = {
   details: FacebookStock,
 };
 
+const Stellar1 = {
+  id: 1,
+  symbol: 'XLM',
+  name: 'Stella',
+  market_value_per_crypto: 0.168
+}
+
+const LiteCoin2 = {
+  id: 2,
+  symbol: 'LTC',
+  market_value_per_crypto: 91.401
+}
+
+const DogeCoin3 = {
+  id: 3,
+  symbol: 'DOGE',
+  market_value_per_crypto: 0.124
+}
+
+const userCrypto1 = {
+  id: 1,
+  sub: "google-oauth2|106608343535113226462",
+  symbol: 'XLM',
+  quantityOfCrypto: 300,
+  averageValuePerCrypto: 0.168,
+  totalCryptoValue: 50.4,
+  firstBought: "2022-01-13T14:21:43.000Z",
+  lastBought: "2022-01-13T14:21:43.000Z",
+  details: Stellar1
+}
+
+const userCrypto2 = {
+  id: 2,
+  sub: "google-oauth2|106608343535113226462",
+  symbol: 'LTC',
+  quantityOfCrypto: 10,
+  averageValuePerCrypto: 91.401,
+  totalCryptoValue: 914.01,
+  firstBought: "2022-01-14T14:21:43.000Z",
+  lastBought: "2022-01-14T14:21:43.000Z",
+  details: LiteCoin2
+}
+
+const userCrypto3 = {
+  id: 3,
+  sub: "google-oauth2|106608343535113226462",
+  symbol: 'DOGE',
+  quantityOfCrypto: 200,
+  averageValuePerCrypto: 0.124,
+  totalCryptoValue: 24.8,
+  firstBought: "2022-01-15T14:21:43.000Z",
+  lastBought: "2022-01-15T14:21:43.000Z",
+  details: DogeCoin3
+}
+
 const InvestmentValues = [
   {
     id: 1,
@@ -86,6 +141,23 @@ const InvestmentValues = [
     dateTime: "2022-05-11T14:00:00.000Z",
     value: 5743.15,
   },
+  {
+    id: 6,
+    sub: "google-oauth2|106608343535113226462",
+    dateTime: "2022-01-13T14:21:43.000Z",
+    value: 6043.15,
+  },
+  { id: 7,
+    sub: "google-oauth2|106608343535113226462",
+    dateTime: "2022-01-14T14:21:43.000Z",
+    value: 6957.16
+  },
+  {
+    id: 8,
+    sub: "google-oauth2|106608343535113226462",
+    dateTime: "2022-01-15T14:21:43.000Z",
+    value: 6981.96
+  }
 ];
 
 const UserData = {
@@ -94,7 +166,7 @@ const UserData = {
   totalInvestmentValue: 5743.15,
   investmentValues: InvestmentValues,
   stocks: [UserStock1, UserStock2, UserStock3],
-  cryptos: null,
+  cryptos: [userCrypto1, userCrypto2, userCrypto3],
 };
 
 export default UserData
