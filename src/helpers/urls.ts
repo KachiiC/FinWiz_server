@@ -7,7 +7,7 @@ export const iexApiStockList = (stock_list: string) => {
 }
 
 export const cryptoUrl = (crypto_list: string) => {
-    return `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?slug=${crypto_list}`
+    return `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=${crypto_list}`
 } 
 
 export const cryptoSymbolUrl = (crypto_list: string) => {

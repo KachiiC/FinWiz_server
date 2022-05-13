@@ -36,3 +36,8 @@ export const stockApiData = async (symbol: string) => {
 
   return result
 }
+
+export const spreadArgs = (data) => {
+    const list = data.map(inv => inv.symbol)
+    return `${[...list]}`
+}
