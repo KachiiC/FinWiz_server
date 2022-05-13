@@ -19,7 +19,6 @@ export const stockUpdateOrCreate = async (req, data) => {
     const stockData = stockApiFormatter(data, req.symbol)
 
     if (!result) {
-      // Cannot create a SingleStock without a UserStock
         return Prisma.singleStock.create({
         data: stockData
       })

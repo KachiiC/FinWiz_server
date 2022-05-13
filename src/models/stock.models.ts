@@ -38,7 +38,6 @@ export const stockListModel = (data: any[]) => {
 export const addStock = async (req: Request) => {
 
     try {
-
         const {
             symbol,
             quantity,
@@ -55,7 +54,9 @@ export const addStock = async (req: Request) => {
 
         const totalValueOfShares = quantity * apiDataValue
 
-        await stockSummary(sub)
+        // need to pass symbol and buy cost else wont set oldest/newest etc.
+        // in stockSummary if first time adding investment to a user!!! -> line 135
+        await stockSummary(sub, symbol, buyCost)
 
         await Prisma.userStock.create({
             data: {
@@ -71,7 +72,6 @@ export const addStock = async (req: Request) => {
 
         const userInvestmentValue = await investmentValues(sub, date, totalValueOfShares)
 
-        //! need to add the rest of the data here
         await Prisma.user.update({
             where: { sub: sub },
             data: { totalInvestmentValue: userInvestmentValue.value }
@@ -82,35 +82,11 @@ export const addStock = async (req: Request) => {
     }
 }
 
-export const stockSummaryCheck = async (sub: string) => {
-    let stockSummary = await Prisma.stockSummary.findUnique({
-        where: { sub: sub }
-    })
-
-    if (!stockSummary) {
-        stockSummary = await Prisma.stockSummary.create({
-            data: {
-                sub: sub,
-                currentTotalAmount: 0,
-                oldestStock: "",
-                newestStock: "",
-                stockWithMostShares: "",
-                highestInvestmentStock: ""
-            }
-        })
-
-        return stockSummary
-    }
-}
-
-export const stockSummary = async (sub: string) => {
-    console.log('in stock summary')
+export const stockSummary = async (sub: string, symbol: string, buyCost: number) => {
 
     let stockSummary = await Prisma.stockSummary.findUnique({
         where: { sub: sub }
     })
-
-    console.log('user stock summary', stockSummary)
 
     const listOfUserStocks = await Prisma.userStock.findMany({
         where: { sub: sub }
@@ -123,16 +99,17 @@ export const stockSummary = async (sub: string) => {
         highestInvestmentStock
 
     if (listOfUserStocks.length > 0) {
+        
+        newestStock = symbol;
+
+        //! can just check if its the first stock bought and set it rather than looping through all stocks each time
         oldestStock = listOfUserStocks.reduce((prev, curr) => {
             prev = new Date(prev.firstBought).getTime() < new Date(curr.firstBought).getTime() ? prev : curr
             return prev
         }).symbol
 
-        newestStock = listOfUserStocks.reduce((prev, curr) => {
-            prev = new Date(prev.firstBought).getTime() > new Date(curr.firstBought).getTime() ? prev : curr
-            return prev
-        }).symbol
 
+        //! These reduce functions are not taking into account the newly added stock :)
         stockWithMostShares = listOfUserStocks.reduce((prev, curr) => {
             prev = prev.numberOfShares > curr.numberOfShares ? prev : curr
             return prev
@@ -157,18 +134,22 @@ export const stockSummary = async (sub: string) => {
     }
 
     if (!stockSummary) {
-        console.log('creating stock summary')
         stockSummary = await Prisma.stockSummary.create({
-            data: { sub: sub, ...inputData }
+            data: { 
+                sub: sub,
+                currentTotalAmount: buyCost,
+                oldestStock: symbol,
+                newestStock: symbol,
+                stockWithMostShares: symbol,
+                highestInvestmentStock: symbol,          
+            }
         })
     } else {
-        console.log('updating stock summary')
         stockSummary = await Prisma.stockSummary.update({
             where: { sub: sub },
             data: { ...inputData }
         })
     }
 
-    console.log('returned stock summary: ', stockSummary)
     return stockSummary
 }
