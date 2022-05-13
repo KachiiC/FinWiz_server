@@ -51,7 +51,7 @@ export const addStock = async (req: Request) => {
 
         const apiDataValue = apiData.data[symbol].quote.latestPrice
 
-        await stockUpdateOrCreate(symbol, apiData)
+        await stockUpdateOrCreate(req.body, apiData)
 
         const totalValueOfShares = quantity * apiDataValue
 
