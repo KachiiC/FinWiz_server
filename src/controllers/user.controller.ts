@@ -1,16 +1,5 @@
 import { Request, Response } from 'express'
-import { createUser, getProfile } from '../models/user.models'
-
-export const addUser = async (req: Request, res: Response) => {
-  try {
-    const newUser = await createUser(req.params.sub)
-    res.status(201)
-    res.json(newUser)
-  } catch (err) {
-    console.error(err)
-    res.sendStatus(404)
-  }
-}
+import { getProfile } from '../models/user.models'
 
 export const getUserProfile = async (req: Request, res: Response) => {
   try {

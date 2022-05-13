@@ -2,7 +2,7 @@
 import { getStockList, getUserStocks, addUserStock } from '../controllers/stock.controllers';
 import { getUserCrypto, addUserCrypto } from '../controllers/crypto.controllers';
 import { getDummyStocks } from '../controllers/dummy.controllers';
-import { addUser, getUserProfile } from '../controllers/user.controller';
+import { getUserProfile } from '../controllers/user.controller';
 // ROUTER
 import { Router } from 'express';
 import { stockListCache } from '../middleware/stocklist.middleware';
@@ -17,7 +17,6 @@ router.get('/stock-list-:type', stockListCache, getStockList)
 router.get('/news', newsListCache, getNewsList)
 
 router.get('/user/:sub', getUserProfile)
-router.get('/create-user/:sub', addUser)
 router.get('/test-user', getDummyStocks)
 router.post('/user-add-stock', addUserStock)
 router.post('/user-add-crypto', addUserCrypto)

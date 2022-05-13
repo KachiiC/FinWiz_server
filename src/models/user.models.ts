@@ -52,5 +52,7 @@ export const getProfile = async ( sub: string ) => {
     }
   })
 
+  if (!userProfile) return await createUser(sub)
+
   return userProfile
 }
