@@ -36,9 +36,9 @@ export const createUser = async (sub: string ) => {
     data: { sub: sub }
   })
 
-  await createStockSummary(sub)
+  //! await createStockSummary(sub) - dont need it will create when stock is added
 
-  return newUser
+  return await getProfile(sub);
 }
 
 export const getProfile = async ( sub: string ) => {
@@ -48,11 +48,11 @@ export const getProfile = async ( sub: string ) => {
     include: {
       investmentValues : true,
       stocks: {
-        include: { userStock: true }
+        include: {
+          userStock: true
+        }
       },
-      cryptos: {
-        include: { cryptoList: true }
-      }
+      cryptos: true
     }
   })
 

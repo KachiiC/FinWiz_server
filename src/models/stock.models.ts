@@ -71,6 +71,7 @@ export const addStock = async (req: Request) => {
 
         const userInvestmentValue = await investmentValues(sub, date, totalValueOfShares)
 
+        //! need to add the rest of the data here
         await Prisma.user.update({
             where: { sub: sub },
             data: { totalInvestmentValue: userInvestmentValue.value }
@@ -103,10 +104,13 @@ export const stockSummaryCheck = async (sub: string) => {
 }
 
 export const stockSummary = async (sub: string) => {
+    console.log('in stock summary')
 
     let stockSummary = await Prisma.stockSummary.findUnique({
         where: { sub: sub }
     })
+
+    console.log('user stock summary', stockSummary)
 
     const listOfUserStocks = await Prisma.userStock.findMany({
         where: { sub: sub }
@@ -153,15 +157,18 @@ export const stockSummary = async (sub: string) => {
     }
 
     if (!stockSummary) {
+        console.log('creating stock summary')
         stockSummary = await Prisma.stockSummary.create({
             data: { sub: sub, ...inputData }
         })
     } else {
+        console.log('updating stock summary')
         stockSummary = await Prisma.stockSummary.update({
             where: { sub: sub },
             data: { ...inputData }
         })
     }
 
+    console.log('returned stock summary: ', stockSummary)
     return stockSummary
 }
