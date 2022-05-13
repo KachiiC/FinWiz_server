@@ -1,6 +1,6 @@
 // CONTROLLERS
 import { getStockList, getUserStocks, addUserStock } from '../controllers/stock.controllers';
-import { getUserCrypto, addUserCrypto } from '../controllers/crypto.controllers';
+import { getUserCrypto, addUserCrypto, getCryptoList } from '../controllers/crypto.controllers';
 import { getDummyStocks } from '../controllers/dummy.controllers';
 import { addUser, getUserProfile } from '../controllers/user.controller';
 // ROUTER
@@ -13,6 +13,7 @@ const router = Router();
 
 router.get('/user-stock/:stocklist', getUserStocks)
 router.get('/user-crypto/:cryptolist', getUserCrypto)
+router.get('/crypto-list/:cryptolist', stockListCache, getCryptoList)
 router.get('/stock-list-:type', stockListCache, getStockList)
 router.get('/news', newsListCache, getNewsList)
 

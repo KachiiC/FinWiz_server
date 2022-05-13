@@ -1,4 +1,4 @@
-const topCrypto = [
+export const topCrypto = [
     {
         "first_historical_data": "2013-04-28T18:47:21.000Z",
         "id": 1,
@@ -201,7 +201,7 @@ const topCrypto = [
     }
 ]
 
-const newestCrypto = [
+export const newestCrypto = [
     {
         first_historical_data: '2022-05-04T10:44:00.000Z',
         id: 19936,
@@ -404,7 +404,7 @@ const newestCrypto = [
     },
 ];
 
-const oldestCrypto = [
+export const oldestCrypto = [
     {
       first_historical_data: '2013-12-15T01:52:15.000Z',
       id: 72,
