@@ -37,7 +37,6 @@ export const createUser = async (sub: string ) => {
   })
 
   await createStockSummary(sub)
-  await createUserStock(sub)
 
   return newUser
 }

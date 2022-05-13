@@ -19,6 +19,8 @@ export const stockUpdateOrCreate = async (req, data) => {
     const stockData = stockApiFormatter(data, req.symbol)
 
     if (!result) {
+      // Cannot create a SingleStock without a UserStock
+        await createStockSummary(req.sub)
         return Prisma.singleStock.create({
         data: stockData
       })
@@ -38,7 +40,8 @@ export const createStockSummary = async (sub: string) => {
       oldestStock: '',
       newestStock: '',
       stockWithMostShares: '',
-      highestInvestmentStock: ''
+      highestInvestmentStock: '',
+      // Can you pass an empty UserStock[] ? 
     }
   })
   return newStockSummary
