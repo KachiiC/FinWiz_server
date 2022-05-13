@@ -28,3 +28,29 @@ export const investmentValues = async (sub: string, dateTime: Date, valueToAdd: 
   
   return userInvestmentValue
 }
+
+export const createUser = async (sub: string ) => {
+
+  const newUser = await Prisma.user.create({
+    data: { sub: sub }
+  })
+  return newUser
+}
+
+export const getProfile = async ( sub: string ) => {
+
+  const userProfile = await Prisma.user.findUnique({
+    where: { sub: sub },
+    include: {
+      investmentValues : true,
+      stocks: {
+        include: { userStock: true }
+      },
+      cryptos: {
+        include: { cryptoList: true }
+      }
+    }
+  })
+
+  return userProfile
+}
