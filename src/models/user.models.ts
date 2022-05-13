@@ -1,4 +1,5 @@
 import Prisma from './index'
+import { createStockSummary, createUserStock } from '../helpers/stock.helpers'
 
 export const investmentValues = async (sub: string, dateTime: Date, valueToAdd: number) => {
 
@@ -34,6 +35,10 @@ export const createUser = async (sub: string ) => {
   const newUser = await Prisma.user.create({
     data: { sub: sub }
   })
+
+  await createStockSummary(sub)
+  await createUserStock(sub)
+
   return newUser
 }
 
