@@ -1,5 +1,4 @@
 import Prisma from './index'
-import { createStockSummary, createUserStock } from '../helpers/stock.helpers'
 
 export const investmentValues = async (sub: string, dateTime: Date, valueToAdd: number) => {
 

@@ -17,7 +17,7 @@ export const stockApiFormatter = (data, symbol) => {
 export const stockUpdateOrCreate = async (req, data) => {
     const result = await stockFinder(req.symbol)
     const stockData = stockApiFormatter(data, req.symbol)
-
+    
     if (!result) {
         return Prisma.singleStock.create({
         data: stockData
@@ -28,26 +28,4 @@ export const stockUpdateOrCreate = async (req, data) => {
       where: { symbol: req.symbol },
       data: { marketValuePerShare : stockData.marketValuePerShare }
     })
-}
-
-export const createStockSummary = async (sub: string) => {
-  const newStockSummary = await Prisma.stockSummary.create({
-    data: { sub: sub }
-  })
-  return newStockSummary
-}
-
-export const createUserStock = async(sub) => {
-  const newUserStock = await Prisma.userStock.create({
-    data: {
-      sub: sub,
-      symbol: '',
-      entryValuePerShare: 0,
-      numberOfShares: 0,
-      totalValueOfShares: 0,
-      firstBought: '',
-      lastBought: ''
-    }
-  })
-  return newUserStock
 }
