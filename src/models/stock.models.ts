@@ -112,8 +112,6 @@ export const stockSummary = async (req, totalValueOfShares: number) => {
             return prev
         }).symbol
 
-
-        //! These reduce functions are not taking into account the newly added stock :)
         stockWithMostShares = listOfUserStocks.reduce((prev, curr) => {
             prev = prev.numberOfShares > curr.numberOfShares ? prev : curr
             return prev
