@@ -107,24 +107,13 @@ export const stockSummary = async (req, totalValueOfShares: number) => {
         newestStock = req.symbol;
 
         //! can just check if its the first stock bought and set it rather than looping through all stocks each time
-        oldestStock = listOfUserStocks.reduce((prev, curr) => {
-            prev = new Date(prev.firstBought).getTime() < new Date(curr.firstBought).getTime() ? prev : curr
-            return prev
-        }).symbol
+        oldestStock = listOfUserStocks.reduce((prev, curr) => new Date(prev.firstBought).getTime() < new Date(curr.firstBought).getTime() ? prev : curr).symbol
 
-        stockWithMostShares = listOfUserStocks.reduce((prev, curr) => {
-            prev = prev.numberOfShares > curr.numberOfShares ? prev : curr
-            return prev
-        }).symbol
+        stockWithMostShares = listOfUserStocks.reduce((prev, curr) => prev.numberOfShares > curr.numberOfShares ? prev : curr).symbol
 
-        currentTotalAmount = listOfUserStocks.reduce((prev, curr) => {
-            return prev + curr.totalValueOfShares
-        }, 0)
+        currentTotalAmount = listOfUserStocks.reduce((prev, curr) => prev + curr.totalValueOfShares, 0)
 
-        highestInvestmentStock = listOfUserStocks.reduce((prev, curr) => {
-            prev = prev.totalValueOfShares > curr.totalValueOfShares ? prev : curr
-            return prev
-        }).symbol
+        highestInvestmentStock = listOfUserStocks.reduce((prev, curr) => prev.totalValueOfShares > curr.totalValueOfShares ? prev : curr).symbol
     }
 
     const inputData = {
