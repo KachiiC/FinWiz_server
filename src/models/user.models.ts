@@ -28,6 +28,7 @@ export const investmentValues = async (sub: string, dateTime: Date, valueToAdd: 
     }
   })
   
+
   return userInvestmentValue
 }
 

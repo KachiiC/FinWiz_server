@@ -19,7 +19,6 @@ export const stockUpdateOrCreate = async ( req, data ) => {
     const stockData = stockApiFormatter(data, req.symbol)
     
     if (!result) {
-        
         return await Prisma.singleStock.create({
         data: stockData
       })
@@ -31,7 +30,7 @@ export const stockUpdateOrCreate = async ( req, data ) => {
     })
 }
 
-export const createUserStock = async ( req, marketValuePerShare: number ) => {
+export const createUserStock = async ( req, totalValueOfShares: number ) => {
 
   //Need to find out if there is another userStock of the same sub and symbol
 
@@ -39,14 +38,14 @@ export const createUserStock = async ( req, marketValuePerShare: number ) => {
     where: { sub: req.sub, symbol: req.symbol }
   })
 
-  if (userStock.length == 0) {
+  if (userStock.length === 0) {
     const newUserStock = await Prisma.userStock.create({
       data: {
         sub: req.sub,
         symbol: req.symbol,
         entryValuePerShare: req.buyCost,
         numberOfShares: req.quantity,
-        totalValueOfShares: req.quantity * marketValuePerShare,
+        totalValueOfShares: totalValueOfShares,
         firstBought: req.date,
         lastBought: req.date
       }
@@ -57,7 +56,7 @@ export const createUserStock = async ( req, marketValuePerShare: number ) => {
     
     const averageEntryValuePerShare = (userStock[0].entryValuePerShare + req.buyCost) / 2
     const totalNumberOfShares = userStock[0].numberOfShares + req.quantity
-    const totalValueOfShares = totalNumberOfShares * marketValuePerShare
+    
 
     const updatedUserStock = await Prisma.userStock.updateMany({
       where: { sub: req.sub, symbol: req.sub },
