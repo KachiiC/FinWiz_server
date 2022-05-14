@@ -5,13 +5,13 @@ export const investmentValues = async (sub: string, dateTime: Date, valueToAdd: 
   const listOfUserInvestments = await Prisma.userInvestmentValues.findMany({
     where: {
       sub: sub
-     }
+    }
   })
 
   let totalInvestmentValueToDate
 
   if (listOfUserInvestments.length > 0) {
-     totalInvestmentValueToDate = listOfUserInvestments.reduce((prev, curr) => {
+    totalInvestmentValueToDate = listOfUserInvestments.reduce((prev, curr) => {
       return prev + curr.value
     }, 0)
   } else {
@@ -31,10 +31,12 @@ export const investmentValues = async (sub: string, dateTime: Date, valueToAdd: 
 
 export const createUser = async (sub: string ) => {
 
-  const newUser = await Prisma.user.create({
+  await Prisma.user.create({
     data: { sub: sub }
   })
-  return newUser
+
+  //! this needs to call getProfile again else it wont return the full data
+  return await getProfile(sub);
 }
 
 export const getProfile = async ( sub: string ) => {
@@ -44,11 +46,11 @@ export const getProfile = async ( sub: string ) => {
     include: {
       investmentValues : true,
       stocks: {
-        include: { userStock: true }
+        include: {
+          userStock: true
+        }
       },
-      cryptos: {
-        include: { cryptoList: true }
-      }
+      cryptos: true
     }
   })
 

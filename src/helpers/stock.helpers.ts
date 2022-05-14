@@ -1,5 +1,6 @@
 import Prisma from '../models'
 
+
 export const stockFinder = async (symbol: string) => {
     return Prisma.singleStock.findUnique({
       where: { symbol: symbol }
@@ -13,18 +14,18 @@ export const stockApiFormatter = (data, symbol) => {
     return { symbol, name, marketValuePerShare }
 }
 
-export const stockUpdateOrCreate = async (symbol: string, data) => {
-    const result = stockFinder(symbol)
-    const stockData = stockApiFormatter(data, symbol)
-
+export const stockUpdateOrCreate = async (req, data) => {
+    const result = await stockFinder(req.symbol)
+    const stockData = stockApiFormatter(data, req.symbol)
+    
     if (!result) {
-      return Prisma.singleStock.create({
+        return Prisma.singleStock.create({
         data: stockData
       })
     }
 
     return Prisma.singleStock.update({
-      where: { symbol: symbol },
+      where: { symbol: req.symbol },
       data: { marketValuePerShare : stockData.marketValuePerShare }
     })
 }
