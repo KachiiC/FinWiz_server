@@ -134,6 +134,7 @@ export const stockSummary = async (sub: string, symbol: string, buyCost: number)
     }
 
     if (!stockSummary) {
+        //! in this case all inputData values are null
         stockSummary = await Prisma.stockSummary.create({
             data: { 
                 sub: sub,
