@@ -47,7 +47,11 @@ export const getProfile = async ( sub: string ) => {
       investmentValues : true,
       stocks: {
         include: {
-          userStock: true
+          userStock: {
+            include: {
+              details: true
+            }
+          }
         }
       },
       cryptos: true
