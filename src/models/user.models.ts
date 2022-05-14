@@ -11,10 +11,12 @@ export const investmentValues = async (sub: string, dateTime: Date, valueToAdd: 
   let totalInvestmentValueToDate
 
   if (listOfUserInvestments.length > 0) {
+    //Add up previous investments + this current investment
     totalInvestmentValueToDate = listOfUserInvestments.reduce((prev, curr) => {
       return prev + curr.value
-    }, 0)
+    }, 0) + valueToAdd
   } else {
+    // This is their 1st investment
     totalInvestmentValueToDate = valueToAdd
   }
 

@@ -7,19 +7,20 @@ export const stockFinder = async (symbol: string) => {
     })
 }
 
-export const stockApiFormatter = (data, symbol) => {
+export const stockApiFormatter = ( data, symbol ) => {
     const marketValuePerShare = data.data[symbol].quote.latestPrice
     const name = data.data[symbol].quote.companyName
 
     return { symbol, name, marketValuePerShare }
 }
 
-export const stockUpdateOrCreate = async (req, data) => {
+export const stockUpdateOrCreate = async ( req, data ) => {
     const result = await stockFinder(req.symbol)
     const stockData = stockApiFormatter(data, req.symbol)
     
     if (!result) {
-        return Prisma.singleStock.create({
+        
+        return await Prisma.singleStock.create({
         data: stockData
       })
     }
@@ -28,4 +29,19 @@ export const stockUpdateOrCreate = async (req, data) => {
       where: { symbol: req.symbol },
       data: { marketValuePerShare : stockData.marketValuePerShare }
     })
+}
+
+export const createUserStock = async ( req, marketValuePerShare: number ) => {
+  const newUserStock = await Prisma.userStock.create({
+    data: {
+      sub: req.sub,
+      symbol: req.symbol,
+      entryValuePerShare: req.buyCost,
+      numberOfShares: req.quantity,
+      totalValueOfShares: req.quantity * marketValuePerShare,
+      firstBought: req.date,
+      lastBought: req.date
+    }
+  })
+  return newUserStock
 }
