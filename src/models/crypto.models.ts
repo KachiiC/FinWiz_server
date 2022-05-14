@@ -21,7 +21,7 @@ export const addCrypto = async (req: Request) => {
         
         const apiDataValue = apiData.data[symbol].quote.USD.price
 
-        await cryptoUpdateOrCreate(symbol, apiData)
+        await cryptoUpdateOrCreate(req.body, apiData)
 
         const totalValueOfCrypto = quantity * apiDataValue
 

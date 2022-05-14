@@ -2,7 +2,7 @@ import Prisma from '../models'
 
 
 export const stockFinder = async (symbol: string) => {
-    return Prisma.singleStock.findUnique({
+    return await Prisma.singleStock.findUnique({
       where: { symbol: symbol }
     })
 }

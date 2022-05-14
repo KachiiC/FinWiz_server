@@ -3,7 +3,7 @@ import Prisma from '../models'
 import { currencyRounder } from './priceHelpers'
 
 export const cryptoFinder = async (symbol: string) => {
-    return Prisma.singleCrypto.findUnique({
+    return await Prisma.singleCrypto.findUnique({
         where: { symbol: symbol }
     })
 }
@@ -16,7 +16,7 @@ export const cryptoApiFormatter = (data, symbol) => {
 }
 
 export const cryptoUpdateOrCreate = async (req, data) => {
-    const result = cryptoFinder(req.symbol)
+    const result = await cryptoFinder(req.symbol)
     const cryptoData = cryptoApiFormatter(data, req.symbol)
 
     if (!result) {
