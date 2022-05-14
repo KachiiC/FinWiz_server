@@ -57,7 +57,15 @@ export const getProfile = async ( sub: string ) => {
           }
         }
       },
-      cryptos: true
+      cryptos: {
+        include: {
+          cryptoList: {
+            include: {
+              details: true
+            }
+          }
+        }
+      }
     }
   })
 
