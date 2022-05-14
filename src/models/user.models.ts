@@ -41,7 +41,6 @@ export const createUser = async (sub: string ) => {
 
 export const getProfile = async ( sub: string ) => {
 
-  //! this is how to ensure it returns the nested arrays, else it wont
   const userProfile = await Prisma.user.findUnique({
     where: { sub: sub },
     include: {
