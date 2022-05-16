@@ -54,24 +54,8 @@ export const createUserStock = async ( req, totalValueOfShares: number ) => {
     return newUserStock
   } else {
     // Another userStock of this investment exists - need to update accordingly
+    return await updateUserStock(sub, symbol, buyCost, quantity)
     
-    const averageEntryValuePerShare = (userStock.entryValuePerShare + req.buyCost) / 2
-    const totalNumberOfShares = userStock.numberOfShares + req.quantity
-    
-
-    const updatedUserStock = await Prisma.userStock.updateMany({
-      where: { sub: req.sub, symbol: req.sub },
-      data: {
-        sub: req.sub,
-        symbol: req.symbol,
-        entryValuePerShare: averageEntryValuePerShare,
-        numberOfShares: totalNumberOfShares,
-        totalValueOfShares: totalValueOfShares,
-        firstBought: userStock.firstBought,
-        lastBought: req.date
-      }
-    })
-    return updatedUserStock
   }
 }
 
@@ -81,7 +65,7 @@ export const updateUserStock = async (sub: string, symbol: string, newEntry: num
   })
 
   // get ((total value of shares / number of shares) + newEntry )/ 2
-  const averageEntry = userStock?.entryValuePerShare as number + newEntry / 2
+  const averageEntry = (userStock?.entryValuePerShare as number + newEntry) / 2
   const totalNumberOfShares = userStock?.numberOfShares as number + quantity
   
 

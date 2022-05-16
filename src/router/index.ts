@@ -1,6 +1,6 @@
 // CONTROLLERS
 import { getStockList, getUserStocks, addUserStock, updateUserStocks } from '../controllers/stock.controllers';
-import { getUserCrypto, addUserCrypto, getCryptoList } from '../controllers/crypto.controllers';
+import { getUserCrypto, addUserCrypto, getCryptoList, updateUserCrypto } from '../controllers/crypto.controllers';
 import { getDummyStocks } from '../controllers/dummy.controllers';
 import { getUserProfile } from '../controllers/user.controller';
 // ROUTER
@@ -23,5 +23,6 @@ router.post('/user-add-stock', addUserStock)
 router.post('/user-add-crypto', addUserCrypto)
 
 router.patch('/user-update-stock', updateUserStocks)
+router.patch('/user-update-crypto', updateUserCrypto)
 
 export default router;

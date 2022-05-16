@@ -3,7 +3,7 @@ import { Request, Response } from 'express'
 import { cryptoHeaders } from '../helpers/headers'
 import { cryptoUrl } from '../helpers/urls'
 import { getRequestWithHeaders, spreadArgs } from "../helpers/apiRequests"
-import { addCrypto } from '../models/crypto.models'
+import { addCrypto, updateCrypto } from '../models/crypto.models'
 import { cryptoListSorter, cryptoObjects } from '../helpers/crypto.helpers'
 
 export const getUserCrypto = async (req: Request, res: Response) => {
@@ -33,6 +33,17 @@ export const addUserCrypto = async (req: Request, res: Response) => {
     res.send("created")
   } catch (err) {
     console.error('Error in addUserCrypto: ', err)
+    res.sendStatus(404)
+  }
+}
+
+export const updateUserCrypto = async (req: Request, res: Response) => {
+  try {
+    await updateCrypto(req)
+    res.status(201)
+    res.send('user crypto updated')
+  } catch (err) {
+    console.error('Error in updateUserCrypto: ', err)
     res.sendStatus(404)
   }
 }

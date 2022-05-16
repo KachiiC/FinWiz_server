@@ -152,7 +152,7 @@ export const updateStock = async ( req: Request ) => {
 
    // boughtOrSold (boolean -> true = bought, false = sold)
     const existingStockArr = await Prisma.userStock.findMany({
-      where: {sub: sub, symbol: symbol}
+      where: { sub, symbol }
     })
 
     const existingStock = existingStockArr[0]
@@ -161,7 +161,7 @@ export const updateStock = async ( req: Request ) => {
     if (!boughtOrSold && existingStockNoOfShares === quantity) {
       // User has sold off all shares of stock. Delete userStock
       const deletedStock = await Prisma.userStock.deleteMany({
-        where: { sub: sub, symbol: symbol}
+        where: { sub, symbol }
       })
 
       const valueToAdd = -quantity * price
@@ -180,12 +180,12 @@ export const updateStock = async ( req: Request ) => {
 
     const updatedTotalValueOfShares = updatedNoOfShares * price
 
-    let updatedDate = existingStock.lastBought
+    let updatedDate
     if (boughtOrSold) updatedDate = date
     if (!boughtOrSold) updatedDate = existingStock.lastBought
 
     const updatedStock = await Prisma.userStock.updateMany({
-        where: { sub: sub, symbol: symbol },
+        where: { sub, symbol },
         data: {
           numberOfShares: updatedNoOfShares,
           entryValuePerShare: price,
