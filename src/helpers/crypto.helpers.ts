@@ -1,6 +1,7 @@
 import { oldestCrypto, topCrypto, newestCrypto } from '../data/crypto.snippet.data'
 import Prisma from '../models'
 import { currencyRounder } from './priceHelpers'
+import { AddCryptoProps } from '../models/interfaces/crypto.models.interface'
 
 export const cryptoFinder = async (symbol: string) => {
     return await Prisma.singleCrypto.findUnique({
@@ -20,18 +21,18 @@ export const cryptoUpdateOrCreate = async (req, data) => {
     const cryptoData = cryptoApiFormatter(data, req.symbol)
 
     if (!result) {
-        return Prisma.singleCrypto.create({
+        return await Prisma.singleCrypto.create({
             data: cryptoData
         })
     }
 
-    return Prisma.singleCrypto.update({
+    return await Prisma.singleCrypto.update({
         where: { symbol: req.symbol },
         data: { marketValuePerCrypto: cryptoData.marketValuePerCrypto }
     })
 }
 
-export const createUserCrypto = async ( req, totalCryptoValue: number ) => {
+export const createUserCrypto = async ( req: AddCryptoProps, totalCryptoValue: number ) => {
 
     const {sub, symbol, buyCost, date, quantity } = req
 

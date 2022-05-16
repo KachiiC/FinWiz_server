@@ -3,6 +3,7 @@ import { cryptoUpdateOrCreate, createUserCrypto } from '../helpers/crypto.helper
 import { cryptoApiData } from '../helpers/apiRequests'
 import Prisma from './index'
 import { investmentValues, updateUserTotalInvestment } from './user.models'
+import { AddCryptoProps } from './interfaces/crypto.models.interface'
 
 
 export const addCrypto = async (req: Request) => {
@@ -40,7 +41,7 @@ export const addCrypto = async (req: Request) => {
 }
 
 
-export const createCryptoSummary = async ( req ) => {
+export const createCryptoSummary = async ( req: AddCryptoProps ) => {
 
     const { sub, symbol, buyCost, quantity } = req
 

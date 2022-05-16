@@ -38,13 +38,6 @@ export const stockListModel = (data: any[]) => {
 
 export const addStock = async (req: Request) => {
 
-  // If user adds a stock 
-  // check if user already has that in userStock
-  // if they don't have userStock proceed:
-  // 1. Create a singleStock
-  // 2. Based on that singleStock create a userStock
-  // 3. add userStock to stockSummary
-  // 4. update stockSummary
     try {
         const {
             symbol,
@@ -58,15 +51,14 @@ export const addStock = async (req: Request) => {
 
         const apiDataValue = apiData.data[symbol].quote.latestPrice
 
-        await stockUpdateOrCreate(req.body, apiData)
+        await stockUpdateOrCreate(symbol, apiData)
 
         const totalValueOfShares = quantity * apiDataValue
 
-        // need to pass symbol and buy cost else wont set oldest/newest etc.
-        // in stockSummary if first time adding investment to a user!!! -> line 135
+        // Stock summary should be created first befor user stock to avoid foreign key issues
         await createStockSummary(sub)
-        await createUserStock( req.body, totalValueOfShares)
 
+        await createUserStock( req.body, totalValueOfShares)
 
         const userInvestmentValue = await investmentValues(sub, date, totalValueOfShares)
 
