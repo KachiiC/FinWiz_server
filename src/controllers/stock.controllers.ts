@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { iexApiStockList, iexApiStockQuotes } from "../helpers/urls"
 import { getRequest } from "../helpers/apiRequests"
-import { addStock, stockListModel } from '../models/stock.models'
+import { addStock, stockListModel, updateStock } from '../models/stock.models'
 import { stockCache } from '../middleware/node.cache'
 
 export const getUserStocks = async (req: Request, res: Response) => {
@@ -45,6 +45,18 @@ export const addUserStock = async (req: Request, res: Response) => {
     res.send('userRecord')
   } catch (err) {
     console.error('Error in addUserStock: ', err)
+    res.sendStatus(404)
+  }
+}
+
+export const updateUserStocks = async (req: Request, res: Response) => {
+
+  try {
+    await updateStock(req)
+    res.status(200)
+    res.send('user stock updated')
+  } catch (err) {
+    console.error('Error in updateUserStocks: ', err)
     res.sendStatus(404)
   }
 }
