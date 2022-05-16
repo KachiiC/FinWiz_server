@@ -91,11 +91,11 @@ export const stockSummary = async (req, totalValueOfShares: number) => {
     })
   }
     await createUserStock( req, totalValueOfShares)
-    await updateStockSummary(req.sub, req.symbol)
+    await updateStockSummary( req.sub )
 
 }
 
-export const updateStockSummary = async (sub: string, symbol: string) => {
+export const updateStockSummary = async (sub: string ) => {
       const listOfUserStocks = await Prisma.userStock.findMany({
         where: { sub: sub }
     })
@@ -108,7 +108,7 @@ export const updateStockSummary = async (sub: string, symbol: string) => {
 
     if (listOfUserStocks.length > 0) {
         
-        newestStock = symbol;
+        newestStock =  listOfUserStocks.reduce((prev, curr) => new Date(prev.firstBought).getTime() > new Date(curr.firstBought).getTime() ? prev : curr).symbol;
 
         //! can just check if its the first stock bought and set it rather than looping through all stocks each time
         oldestStock = listOfUserStocks.reduce((prev, curr) => new Date(prev.firstBought).getTime() < new Date(curr.firstBought).getTime() ? prev : curr).symbol
@@ -157,6 +157,19 @@ export const updateStock = async ( req: Request ) => {
     const existingStock = existingStockArr[0]
     const existingStockNoOfShares = existingStock.numberOfShares
 
+    if (!boughtOrSold && existingStockNoOfShares === quantity) {
+      // User has sold off all shares of stock. Delete userStock
+      const deletedStock = await Prisma.userStock.deleteMany({
+        where: { sub: sub, symbol: symbol}
+      })
+
+      const valueToAdd = -quantity * price
+      await updateStockSummary( sub )
+      await investmentValues( sub, date, valueToAdd )
+      await updateUserTotalInvestment( sub )
+
+      return deletedStock
+    }
      // User has bought more stock to add on, get existing quantity and price and update.
     
     let updatedNoOfShares : number = 0
@@ -170,7 +183,7 @@ export const updateStock = async ( req: Request ) => {
     if (boughtOrSold) updatedDate = date
     if (!boughtOrSold) updatedDate = existingStock.lastBought
 
-      await Prisma.userStock.updateMany({
+    const updatedStock = await Prisma.userStock.updateMany({
         where: { sub: sub, symbol: symbol },
         data: {
           numberOfShares: updatedNoOfShares,
@@ -185,8 +198,9 @@ export const updateStock = async ( req: Request ) => {
       if (boughtOrSold) valueToAdd = quantity * price
       if (!boughtOrSold) valueToAdd = -quantity * price
 
-      await updateStockSummary( sub, symbol )
+      await updateStockSummary( sub )
       await investmentValues( sub, updatedDate, valueToAdd )
       await updateUserTotalInvestment( sub )
-
+      
+      return updatedStock
 }
