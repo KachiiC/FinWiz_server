@@ -43,30 +43,32 @@ export const addCrypto = async (req: Request) => {
 
 export const cryptoSummary = async ( req ) => {
 
+    const { sub, symbol, buyCost, quantity } = req
+
     let cryptoSummary = await Prisma.cryptoSummary.findUnique({
-        where: { sub: req.sub }
+        where: { sub }
     })
 
     if (!cryptoSummary) {
       // create a cryptoSummary for the user first time with default values. This will be updated later.
       await Prisma.cryptoSummary.create({
         data: {
-          sub: req.sub,
-          totalValueOf: req.buyCost * req.quantity,
+          sub,
+          totalValueOf: buyCost * quantity,
           numberOfDifferent: 1,
-          highestInvestedCurrency: req.symbol,
-          highestValuePerCurrency: req.symbol,
-          lowestValuePerCurrency: req.symbol,
-          highestOwnedVolume: req.symbol,
-          lowestOwnedVolume: req.symbol,
-          newestBoughtCurrency: req.symbol,
-          oldestBoughtCurrency: req.symbol
+          highestInvestedCurrency: symbol,
+          highestValuePerCurrency: symbol,
+          lowestValuePerCurrency: symbol,
+          highestOwnedVolume: symbol,
+          lowestOwnedVolume: symbol,
+          newestBoughtCurrency: symbol,
+          oldestBoughtCurrency: symbol
         }
       })
     }
 
 
-    await updateCryptoSummary(req.sub)
+    await updateCryptoSummary(sub)
 }
 
 
