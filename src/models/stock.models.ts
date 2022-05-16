@@ -38,6 +38,13 @@ export const stockListModel = (data: any[]) => {
 
 export const addStock = async (req: Request) => {
 
+  // If user adds a stock 
+  // check if user already has that in userStock
+  // if they don't have userStock proceed:
+  // 1. Create a singleStock
+  // 2. Based on that singleStock create a userStock
+  // 3. add userStock to stockSummary
+  // 4. update stockSummary
     try {
         const {
             symbol,
@@ -57,7 +64,8 @@ export const addStock = async (req: Request) => {
 
         // need to pass symbol and buy cost else wont set oldest/newest etc.
         // in stockSummary if first time adding investment to a user!!! -> line 135
-        await stockSummary(req.body, totalValueOfShares)
+        await createUserStock( req.body, totalValueOfShares)
+        await stockSummary(sub)
 
         const userInvestmentValue = await investmentValues(sub, date, totalValueOfShares)
 
@@ -71,27 +79,20 @@ export const addStock = async (req: Request) => {
     }
 }
 
-export const stockSummary = async (req, totalValueOfShares: number) => {
+export const stockSummary = async (sub: string) => {
 
     let stockSummary = await Prisma.stockSummary.findUnique({
-        where: { sub: req.sub }
+        where: { sub }
     })
 
     if (!stockSummary) {
       // create a stockSummary for the user first time with some default values. Will update later
       await Prisma.stockSummary.create({
-        data: { 
-            sub: req.sub,
-            currentTotalAmount: req.buyCost,
-            oldestStock: req.symbol,
-            newestStock: req.symbol,
-            stockWithMostShares: req.symbol,
-            highestInvestmentStock: req.symbol,          
-        }
-    })
-  }
-    await createUserStock( req, totalValueOfShares)
-    await updateStockSummary( req.sub )
+        data: { sub }
+      })
+    }
+    
+    await updateStockSummary( sub )
 
 }
 

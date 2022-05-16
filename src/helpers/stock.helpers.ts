@@ -33,29 +33,30 @@ export const stockUpdateOrCreate = async ( req, data ) => {
 export const createUserStock = async ( req, totalValueOfShares: number ) => {
 
   //Need to find out if there is another userStock of the same sub and symbol
+  const {sub, symbol, buyCost, date, quantity } = req
 
-  let userStock = await Prisma.userStock.findMany({
-    where: { sub: req.sub, symbol: req.symbol }
+  let userStock = await Prisma.userStock.findFirst({
+    where: { sub, symbol }
   })
 
-  if (userStock.length === 0) {
+  if (!userStock) {
     const newUserStock = await Prisma.userStock.create({
       data: {
-        sub: req.sub,
-        symbol: req.symbol,
-        entryValuePerShare: req.buyCost,
-        numberOfShares: req.quantity,
-        totalValueOfShares: totalValueOfShares,
-        firstBought: req.date,
-        lastBought: req.date
+        sub,
+        symbol,
+        entryValuePerShare: buyCost,
+        numberOfShares: quantity,
+        totalValueOfShares,
+        firstBought: date,
+        lastBought: date
       }
     })
     return newUserStock
   } else {
     // Another userStock of this investment exists - need to update accordingly
     
-    const averageEntryValuePerShare = (userStock[0].entryValuePerShare + req.buyCost) / 2
-    const totalNumberOfShares = userStock[0].numberOfShares + req.quantity
+    const averageEntryValuePerShare = (userStock.entryValuePerShare + req.buyCost) / 2
+    const totalNumberOfShares = userStock.numberOfShares + req.quantity
     
 
     const updatedUserStock = await Prisma.userStock.updateMany({
@@ -66,11 +67,35 @@ export const createUserStock = async ( req, totalValueOfShares: number ) => {
         entryValuePerShare: averageEntryValuePerShare,
         numberOfShares: totalNumberOfShares,
         totalValueOfShares: totalValueOfShares,
-        firstBought: userStock[0].firstBought,
+        firstBought: userStock.firstBought,
         lastBought: req.date
       }
     })
     return updatedUserStock
   }
+}
+
+export const updateUserStock = async (sub: string, symbol: string, newEntry: number, quantity: number) => {
+  let userStock = await Prisma.userStock.findFirst({
+    where: { sub, symbol }
+  })
+
+  // get ((total value of shares / number of shares) + newEntry )/ 2
+  const averageEntry = userStock?.entryValuePerShare as number + newEntry / 2
+  const totalNumberOfShares = userStock?.numberOfShares as number + quantity
   
+
+  const updatedUserStock = await Prisma.userStock.updateMany({
+    where: { sub, symbol },
+    data: {
+      sub,
+      symbol,
+      entryValuePerShare: averageEntry,
+      numberOfShares: totalNumberOfShares,
+      totalValueOfShares: totalNumberOfShares * averageEntry,
+      lastBought: new Date().toISOString()
+    }
+  })
+  
+  return updatedUserStock
 }
