@@ -24,9 +24,8 @@ export const addCrypto = async (req: Request) => {
 
         const totalValueOfCrypto = quantity * apiDataValue
 
-        await createUserCrypto( req, totalValueOfCrypto)
-
-        await cryptoSummary(req.body)
+        await createCryptoSummary(req.body)
+        await createUserCrypto( req.body, totalValueOfCrypto)
 
         const userInvestmentValue = await investmentValues(sub, date, totalValueOfCrypto)
 
@@ -41,7 +40,7 @@ export const addCrypto = async (req: Request) => {
 }
 
 
-export const cryptoSummary = async ( req ) => {
+export const createCryptoSummary = async ( req ) => {
 
     const { sub, symbol, buyCost, quantity } = req
 

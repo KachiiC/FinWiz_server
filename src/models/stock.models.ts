@@ -64,8 +64,9 @@ export const addStock = async (req: Request) => {
 
         // need to pass symbol and buy cost else wont set oldest/newest etc.
         // in stockSummary if first time adding investment to a user!!! -> line 135
+        await createStockSummary(sub)
         await createUserStock( req.body, totalValueOfShares)
-        await stockSummary(sub)
+
 
         const userInvestmentValue = await investmentValues(sub, date, totalValueOfShares)
 
@@ -79,7 +80,7 @@ export const addStock = async (req: Request) => {
     }
 }
 
-export const stockSummary = async (sub: string) => {
+export const createStockSummary = async (sub: string) => {
 
     let stockSummary = await Prisma.stockSummary.findUnique({
         where: { sub }
