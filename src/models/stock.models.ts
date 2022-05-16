@@ -64,8 +64,9 @@ export const addStock = async (req: Request) => {
 
         // need to pass symbol and buy cost else wont set oldest/newest etc.
         // in stockSummary if first time adding investment to a user!!! -> line 135
-        await createUserStock( req.body, totalValueOfShares)
         await stockSummary(sub)
+        await createUserStock( req.body, totalValueOfShares)
+
 
         const userInvestmentValue = await investmentValues(sub, date, totalValueOfShares)
 
