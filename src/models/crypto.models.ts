@@ -2,7 +2,7 @@ import { Request } from 'express'
 import { cryptoUpdateOrCreate, createUserCrypto } from '../helpers/crypto.helpers'
 import { cryptoApiData } from '../helpers/apiRequests'
 import Prisma from './index'
-import { investmentValues } from './user.models'
+import { investmentValues, updateUserTotalInvestment } from './user.models'
 
 
 export const addCrypto = async (req: Request) => {
@@ -66,8 +66,15 @@ export const cryptoSummary = async (req, totalValueOfCrypto: number ) => {
 
     await createUserCrypto( req, totalValueOfCrypto)
 
-    const listOfUserCrypto = await Prisma.userCrypto.findMany({
-        where: { sub: req.sub }
+    await updateCryptoSummary(req.sub)
+}
+
+
+
+export const updateCryptoSummary = async (sub: string) => {
+
+      const listOfUserCrypto = await Prisma.userCrypto.findMany({
+        where: { sub }
     })
 
     let totalValueOf,
@@ -116,10 +123,75 @@ export const cryptoSummary = async (req, totalValueOfCrypto: number ) => {
         oldestBoughtCurrency,
     }
 
-    cryptoSummary = await Prisma.cryptoSummary.update({
-        where: { sub: req.sub },
+    const cryptoSummary = await Prisma.cryptoSummary.update({
+        where: { sub },
         data: { ...inputData }
     })
 
     return cryptoSummary
+
+}
+
+export const updateCrypto = async ( req: Request ) => {
+
+    const {
+      sub,
+      symbol,
+      quantity,
+      price,
+      boughtOrSold,
+      date
+    } = req.body
+
+    const existingUserCrypto = await Prisma.userCrypto.findFirst({
+      where: { sub, symbol }
+    })
+
+    if (!boughtOrSold && existingUserCrypto?.quantityOfCrypto === quantity) {
+
+      const deletedCrypto = await Prisma.userCrypto.deleteMany({
+        where: { sub, symbol }
+      })
+
+      const valueToAdd = -quantity * price
+      await updateCryptoSummary( sub )
+      await investmentValues( sub, date, valueToAdd )
+      await updateUserTotalInvestment( sub )
+
+      return deletedCrypto
+    }
+    // User has bought more crypto to add on, get existing quantity and price and update.
+
+    let updatedQuantityOfCrypto = 0
+
+    if (boughtOrSold) updatedQuantityOfCrypto = existingUserCrypto?.quantityOfCrypto as number + quantity
+    if (!boughtOrSold) updatedQuantityOfCrypto = existingUserCrypto?.quantityOfCrypto as number - quantity
+
+    const updatedTotalCryptoValue = updatedQuantityOfCrypto * price
+
+    let updatedDate
+    if (boughtOrSold) updatedDate = date
+    if (!boughtOrSold) updatedDate = existingUserCrypto?.lastBought
+
+    const averageValuePerCrypto = (existingUserCrypto?.averageValuePerCrypto as number + price) / 2
+
+    const updatedCrypto = await Prisma.userCrypto.updateMany({
+      where: { sub, symbol },
+      data: {
+        quantityOfCrypto: updatedQuantityOfCrypto,
+        averageValuePerCrypto,
+        totalCryptoValue: updatedTotalCryptoValue,
+        lastBought: updatedDate
+      }
+    })
+
+    let valueToAdd = 0
+    if (boughtOrSold) valueToAdd = quantity * price
+    if (!boughtOrSold) valueToAdd = -quantity * price
+
+    await updateCryptoSummary( sub )
+    await investmentValues( sub, updatedDate, valueToAdd )
+    await updateUserTotalInvestment( sub )
+    
+    return updatedCrypto
 }
