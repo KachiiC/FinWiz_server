@@ -14,7 +14,7 @@ const router = Router();
 router.get('/user-stock/:stocklist', getUserStocks)
 router.get('/user-crypto/:cryptolist', getUserCrypto)
 router.get('/crypto-list/:cryptolist', stockListCache, getCryptoList)
-router.get('/stock-list-:type', stockListCache, getStockList)
+router.get('/stock-list/:type', stockListCache, getStockList)
 router.get('/news', newsListCache, getNewsList)
 
 router.get('/user/:sub', getUserProfile)
