@@ -8,7 +8,6 @@ import { investmentValues, updateUserTotalInvestment } from './user.models'
 export const addCrypto = async (req: Request) => {
 
     try {
-        // DECONSTRUCT
         const {
             symbol,
             quantity,
@@ -25,7 +24,9 @@ export const addCrypto = async (req: Request) => {
 
         const totalValueOfCrypto = quantity * apiDataValue
 
-        await cryptoSummary(req.body, totalValueOfCrypto)
+        await createUserCrypto( req, totalValueOfCrypto)
+
+        await cryptoSummary(req.body)
 
         const userInvestmentValue = await investmentValues(sub, date, totalValueOfCrypto)
 
@@ -40,7 +41,7 @@ export const addCrypto = async (req: Request) => {
 }
 
 
-export const cryptoSummary = async (req, totalValueOfCrypto: number ) => {
+export const cryptoSummary = async ( req ) => {
 
     let cryptoSummary = await Prisma.cryptoSummary.findUnique({
         where: { sub: req.sub }
@@ -64,7 +65,6 @@ export const cryptoSummary = async (req, totalValueOfCrypto: number ) => {
       })
     }
 
-    await createUserCrypto( req, totalValueOfCrypto)
 
     await updateCryptoSummary(req.sub)
 }

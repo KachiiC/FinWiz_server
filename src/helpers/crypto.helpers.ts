@@ -33,20 +33,22 @@ export const cryptoUpdateOrCreate = async (req, data) => {
 
 export const createUserCrypto = async ( req, totalCryptoValue: number ) => {
 
-    let userCrypto = await Prisma.userCrypto.findMany({
+    const {sub, symbol, buyCost, date, quantity } = req
+
+    let userCrypto = await Prisma.userCrypto.findFirst({
       where: { sub: req.sub, symbol: req.symbol }
     })
 
-    if (userCrypto.length === 0 ) {
+    if (!userCrypto) {
       const newUserCrypto = await Prisma.userCrypto.create({
         data: {
-          sub: req.sub,
-          symbol: req.symbol,
-          averageValuePerCrypto: req.buyCost,
-          quantityOfCrypto: req.quantity,
+          sub,
+          symbol,
+          averageValuePerCrypto: buyCost,
+          quantityOfCrypto: quantity,
           totalCryptoValue: totalCryptoValue,
-          firstBought: req.date,
-          lastBought: req.date
+          firstBought: date,
+          lastBought: date
         }
       })
       return newUserCrypto
@@ -54,24 +56,30 @@ export const createUserCrypto = async ( req, totalCryptoValue: number ) => {
 
       // Another userCrypto of this investment exists - update accordingly
 
-      const averageValuePerCrypto = (userCrypto[0].averageValuePerCrypto + req.buyCost) / 2
-      const totalNumberOfCrypto = userCrypto[0].quantityOfCrypto + req.quantity
-
-      const updatedUserCrypto = await Prisma.userCrypto.updateMany({
-        where: { sub: req.sub, symbol: req.sub },
-        data: {
-          sub: req.sub,
-          symbol: req.symbol,
-          quantityOfCrypto: totalNumberOfCrypto,
-          averageValuePerCrypto: averageValuePerCrypto,
-          totalCryptoValue: totalCryptoValue,
-          firstBought: userCrypto[0].firstBought,
-          lastBought: req.date
-        }
-      })
-      return updatedUserCrypto
+      return await updateUserCrypto(sub, symbol, buyCost, quantity)
     }
   
+}
+
+export const updateUserCrypto = async (sub: string, symbol: string, newEntry: number, quantity: number) => {
+    
+    let userCrypto = await Prisma.userCrypto.findFirst({
+      where: { sub, symbol }
+    })
+
+    const averageValuePerCrypto = (userCrypto?.averageValuePerCrypto as number + newEntry) / 2
+    const totalNumberOfCrypto = userCrypto?.quantityOfCrypto as number + quantity
+
+    const updatedUserCrypto = await Prisma.userCrypto.updateMany({
+      where: { sub, symbol },
+      data: {
+        quantityOfCrypto: totalNumberOfCrypto,
+        averageValuePerCrypto: averageValuePerCrypto,
+        totalCryptoValue: totalNumberOfCrypto * averageValuePerCrypto,
+        lastBought: new Date().toISOString()
+      }
+    })
+      return updatedUserCrypto
 }
 
 export const cryptoObjects = {
