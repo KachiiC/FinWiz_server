@@ -17,6 +17,7 @@ model User {
   investmentValues     UserInvestmentValues[]
   stocks               StockSummary?
   cryptos              CryptoSummary?
+  commodities          CommoditiesSummary?
 }
 
 model UserInvestmentValues {
@@ -32,7 +33,7 @@ model UserInvestmentValues {
 model StockSummary {
   id                     Int         @id @default(autoincrement())
   sub                    String      @unique
-  currentTotalAmount     Float? 
+  currentTotalAmount     Float?
   oldestStock            String?
   newestStock            String?
   stockWithMostShares    String?
@@ -67,7 +68,6 @@ model SingleStock {
 model CryptoSummary {
   id                      Int          @id @default(autoincrement())
   sub                     String       @unique
-  cryptoList              UserCrypto[]
   totalValueOf            Float
   numberOfDifferent       Int
   highestInvestedCurrency String
@@ -77,12 +77,13 @@ model CryptoSummary {
   lowestOwnedVolume       String
   newestBoughtCurrency    String
   oldestBoughtCurrency    String
+  cryptoList              UserCrypto[]
   user                    User         @relation(fields: [sub], references: [sub])
 }
 
 model UserCrypto {
   id                    Int            @id @default(autoincrement())
-  sub                   String         
+  sub                   String
   symbol                String
   quantityOfCrypto      Float
   averageValuePerCrypto Float
@@ -99,4 +100,41 @@ model SingleCrypto {
   name                 String
   marketValuePerCrypto Float
   userCrypto           UserCrypto[]
+}
+
+model CommoditiesSummary {
+  id                       Int             @id @default(autoincrement())
+  sub                      String          @unique
+  totalValueOf             Float?
+  highestInvestedCommodity String?
+  highestValuePerCommodity String?
+  commoditiesList          UserCommodity[]
+  user                     User            @relation(fields: [sub], references: [sub])
+}
+
+model UserCommodity {
+  id                   Int                 @id @default(autoincrement())
+  sub                  String
+  name                 String
+  quantityOfCommoditiy Int
+  averageBuyPrice      Float
+  totalCommodityValue  Float
+  firstBought          DateTime
+  lastBought           DateTime
+  details              SingleCommodity     @relation(fields: [name], references: [name])
+  commoditiesSummary   CommoditiesSummary @relation(fields: [sub], references: [sub])
+}
+
+model SingleCommodity {
+  id                Int             @id @default(autoincrement())
+  name              String          @unique
+  type              String
+  currency          String
+  change            Float?
+  change_percentage Float?
+  high              Float?
+  low               Float?
+  last              Float?
+  last_close        Float?
+  UserCommodities   UserCommodity[]
 }
