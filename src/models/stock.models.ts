@@ -7,6 +7,7 @@ import { currencyRounder, percentageCalculator } from '../helpers/priceHelpers'
 import { AddStockProps, UpdateStockProps } from './interfaces/stock.models.interface'
 
 
+
 export const stockListModel = (data: any[]) => {
 
   return data.map((stock) => {
