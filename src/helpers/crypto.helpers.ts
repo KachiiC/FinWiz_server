@@ -1,6 +1,7 @@
 import { oldestCrypto, topCrypto, newestCrypto } from '../data/crypto.snippet.data'
 import Prisma from '../models'
 import { currencyRounder } from './priceHelpers'
+import { AddCryptoProps } from '../models/interfaces/crypto.models.interface'
 
 export const cryptoFinder = async (symbol: string) => {
     return await Prisma.singleCrypto.findUnique({
@@ -20,20 +21,20 @@ export const cryptoUpdateOrCreate = async (req, data) => {
     const cryptoData = cryptoApiFormatter(data, req.symbol)
 
     if (!result) {
-        return Prisma.singleCrypto.create({
+        return await Prisma.singleCrypto.create({
             data: cryptoData
         })
     }
 
-    return Prisma.singleCrypto.update({
+    return await Prisma.singleCrypto.update({
         where: { symbol: req.symbol },
         data: { marketValuePerCrypto: cryptoData.marketValuePerCrypto }
     })
 }
 
-export const createUserCrypto = async ( req, totalCryptoValue: number ) => {
+export const createUserCrypto = async ( req: AddCryptoProps, totalCryptoValue: number ) => {
 
-    const {sub, symbol, buyCost, date, quantity } = req
+    const {sub, symbol, buyCost, date, quantity } : AddCryptoProps = req
 
     let userCrypto = await Prisma.userCrypto.findFirst({
       where: { sub: req.sub, symbol: req.symbol }
@@ -52,13 +53,8 @@ export const createUserCrypto = async ( req, totalCryptoValue: number ) => {
         }
       })
       return newUserCrypto
-    } else {
-
-      // Another userCrypto of this investment exists - update accordingly
-
-      return await updateUserCrypto(sub, symbol, buyCost, quantity)
     }
-  
+      return await updateUserCrypto(sub, symbol, buyCost, quantity)
 }
 
 export const updateUserCrypto = async (sub: string, symbol: string, newEntry: number, quantity: number) => {
@@ -75,7 +71,7 @@ export const updateUserCrypto = async (sub: string, symbol: string, newEntry: nu
       data: {
         quantityOfCrypto: totalNumberOfCrypto,
         averageValuePerCrypto: averageValuePerCrypto,
-        totalCryptoValue: totalNumberOfCrypto * averageValuePerCrypto,
+        totalCryptoValue: currencyRounder(totalNumberOfCrypto * averageValuePerCrypto),
         lastBought: new Date().toISOString()
       }
     })

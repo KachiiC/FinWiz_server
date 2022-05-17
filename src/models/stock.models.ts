@@ -4,6 +4,7 @@ import { stockApiData } from '../helpers/apiRequests'
 import Prisma from './index'
 import { investmentValues, updateUserTotalInvestment } from './user.models'
 import { currencyRounder, percentageCalculator } from '../helpers/priceHelpers'
+import { AddStockProps, UpdateStockProps } from './interfaces/stock.models.interface'
 
 
 export const stockListModel = (data: any[]) => {
@@ -38,13 +39,6 @@ export const stockListModel = (data: any[]) => {
 
 export const addStock = async (req: Request) => {
 
-  // If user adds a stock 
-  // check if user already has that in userStock
-  // if they don't have userStock proceed:
-  // 1. Create a singleStock
-  // 2. Based on that singleStock create a userStock
-  // 3. add userStock to stockSummary
-  // 4. update stockSummary
     try {
         const {
             symbol,
@@ -52,21 +46,20 @@ export const addStock = async (req: Request) => {
             buyCost,
             date,
             sub
-        } = req.body
+        } : AddStockProps = req.body
 
         const apiData = await stockApiData(symbol)
 
         const apiDataValue = apiData.data[symbol].quote.latestPrice
 
-        await stockUpdateOrCreate(req.body, apiData)
+        await stockUpdateOrCreate(symbol, apiData)
 
         const totalValueOfShares = quantity * apiDataValue
 
-        // need to pass symbol and buy cost else wont set oldest/newest etc.
-        // in stockSummary if first time adding investment to a user!!! -> line 135
+        // Stock summary should be created first befor user stock to avoid foreign key issues
         await createStockSummary(sub)
         await createUserStock( req.body, totalValueOfShares)
-
+        await updateStockSummary( req.body )
 
         const userInvestmentValue = await investmentValues(sub, date, totalValueOfShares)
 
@@ -93,13 +86,18 @@ export const createStockSummary = async (sub: string) => {
       })
     }
     
-    await updateStockSummary( sub )
-
 }
 
-export const updateStockSummary = async (sub: string ) => {
+export const updateStockSummary = async (req: AddStockProps ) => {
+
+  const { symbol ,quantity, buyCost, sub } = req
+
+      const existingStockSummary = await Prisma.stockSummary.findUnique({
+        where: { sub }
+      })
+
       const listOfUserStocks = await Prisma.userStock.findMany({
-        where: { sub: sub }
+        where: { sub }
     })
 
     let oldestStock,
@@ -130,9 +128,23 @@ export const updateStockSummary = async (sub: string ) => {
         highestInvestmentStock
     }
 
+    if (!existingStockSummary) {
+      const newStockSummary = await Prisma.stockSummary.create({
+        data: {
+          sub,
+          currentTotalAmount: buyCost * quantity,
+          oldestStock: symbol,
+          newestStock: symbol,
+          stockWithMostShares: symbol,
+          highestInvestmentStock: symbol
+        }
+      })
+      return newStockSummary
+    }
+
     // Should be a stockSummary because we created one if there isn't on Line 81
       const stockSummary = await Prisma.stockSummary.update({
-          where: { sub: sub },
+          where: { sub },
           data: { ...inputData }
       })
 
@@ -149,7 +161,7 @@ export const updateStock = async ( req: Request ) => {
       price,
       boughtOrSold,
       date
-    } = req.body
+    } : UpdateStockProps = req.body
 
    // boughtOrSold (boolean -> true = bought, false = sold)
     const existingStockArr = await Prisma.userStock.findMany({
@@ -166,7 +178,7 @@ export const updateStock = async ( req: Request ) => {
       })
 
       const valueToAdd = -quantity * price
-      await updateStockSummary( sub )
+      await updateStockSummary( req.body )
       await investmentValues( sub, date, valueToAdd )
       await updateUserTotalInvestment( sub )
 
@@ -200,7 +212,7 @@ export const updateStock = async ( req: Request ) => {
       if (boughtOrSold) valueToAdd = quantity * price
       if (!boughtOrSold) valueToAdd = -quantity * price
 
-      await updateStockSummary( sub )
+      await updateStockSummary( req.body )
       await investmentValues( sub, updatedDate, valueToAdd )
       await updateUserTotalInvestment( sub )
       

@@ -1,5 +1,6 @@
 import Prisma from '../models'
-
+import { AddStockProps } from '../models/interfaces/stock.models.interface'
+import { currencyRounder } from './priceHelpers'
 
 export const stockFinder = async (symbol: string) => {
     return await Prisma.singleStock.findUnique({
@@ -7,16 +8,16 @@ export const stockFinder = async (symbol: string) => {
     })
 }
 
-export const stockApiFormatter = ( data, symbol ) => {
+export const stockApiFormatter = ( data, symbol: string ) => {
     const marketValuePerShare = data.data[symbol].quote.latestPrice
     const name = data.data[symbol].quote.companyName
 
     return { symbol, name, marketValuePerShare }
 }
 
-export const stockUpdateOrCreate = async ( req, data ) => {
-    const result = await stockFinder(req.symbol)
-    const stockData = stockApiFormatter(data, req.symbol)
+export const stockUpdateOrCreate = async ( symbol: string, data ) => {
+    const result = await stockFinder(symbol)
+    const stockData = stockApiFormatter(data, symbol)
     
     if (!result) {
         return await Prisma.singleStock.create({
@@ -25,15 +26,15 @@ export const stockUpdateOrCreate = async ( req, data ) => {
     }
 
     return Prisma.singleStock.update({
-      where: { symbol: req.symbol },
+      where: { symbol },
       data: { marketValuePerShare : stockData.marketValuePerShare }
     })
 }
 
-export const createUserStock = async ( req, totalValueOfShares: number ) => {
+export const createUserStock = async ( req : AddStockProps, totalValueOfShares: number ) => {
 
   //Need to find out if there is another userStock of the same sub and symbol
-  const {sub, symbol, buyCost, date, quantity } = req
+  const {sub, symbol, buyCost, date, quantity } : AddStockProps = req
 
   let userStock = await Prisma.userStock.findFirst({
     where: { sub, symbol }
@@ -52,11 +53,9 @@ export const createUserStock = async ( req, totalValueOfShares: number ) => {
       }
     })
     return newUserStock
-  } else {
-    // Another userStock of this investment exists - need to update accordingly
+  } 
     return await updateUserStock(sub, symbol, buyCost, quantity)
-    
-  }
+  
 }
 
 export const updateUserStock = async (sub: string, symbol: string, newEntry: number, quantity: number) => {
@@ -76,7 +75,7 @@ export const updateUserStock = async (sub: string, symbol: string, newEntry: num
       symbol,
       entryValuePerShare: averageEntry,
       numberOfShares: totalNumberOfShares,
-      totalValueOfShares: totalNumberOfShares * averageEntry,
+      totalValueOfShares: currencyRounder(totalNumberOfShares * averageEntry),
       lastBought: new Date().toISOString()
     }
   })
