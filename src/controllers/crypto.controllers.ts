@@ -4,7 +4,9 @@ import { cryptoHeaders } from '../helpers/headers'
 import { cryptoUrl } from '../helpers/urls'
 import { getRequestWithHeaders, spreadArgs } from "../helpers/apiRequests"
 import { addCrypto, updateCrypto } from '../models/crypto.models'
-import { cryptoListSorter, cryptoObjects } from '../helpers/crypto.helpers'
+import { cryptoListSorter } from '../helpers/crypto.helpers'
+import { oldestCrypto, topCrypto, newestCrypto } from '../data/crypto.snippet.data'
+import { investmentsCache } from '../middleware/node.cache'
 
 export const getUserCrypto = async (req: Request, res: Response) => {
 
@@ -51,18 +53,38 @@ export const updateUserCrypto = async (req: Request, res: Response) => {
 export const getCryptoList = async (req: Request, res: Response) => {
 
   // GETS MODEL
-  const correctModel = cryptoObjects[req.params.cryptolist]
-  const argsList = spreadArgs(correctModel)
-  const url = cryptoUrl(argsList)
+
+  const oldest = spreadArgs(oldestCrypto)
+  const top = spreadArgs(topCrypto)
+  const newest = spreadArgs(newestCrypto)
+
+  const oldestUrl = cryptoUrl(oldest)
+  const topUrl = cryptoUrl(top)
+  const newestUrl = cryptoUrl(newest)
 
   try {
-    const data = await getRequestWithHeaders(
-      url,
+    const oldestData = await getRequestWithHeaders(
+      oldestUrl,
+      cryptoHeaders(process.env.COINCAP_KEY || "")
+    )
+    const topData = await getRequestWithHeaders(
+      topUrl,
+      cryptoHeaders(process.env.COINCAP_KEY || "")
+    )
+    const newestData = await getRequestWithHeaders(
+      newestUrl,
       cryptoHeaders(process.env.COINCAP_KEY || "")
     )
 
-    const resData = cryptoListSorter(data.data)
+    const resData = {
+      oldest: cryptoListSorter(oldestData.data),
+      top: cryptoListSorter(topData.data),
+      newest: cryptoListSorter(newestData.data)
+    }
 
+    investmentsCache.set('crypto', resData)
+
+    res.status(201)
     res.send(resData)
   }
   catch (err) {
