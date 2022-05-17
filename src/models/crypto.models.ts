@@ -3,6 +3,7 @@ import { cryptoUpdateOrCreate, createUserCrypto } from '../helpers/crypto.helper
 import { cryptoApiData } from '../helpers/apiRequests'
 import Prisma from './index'
 import { investmentValues, updateUserTotalInvestment } from './user.models'
+import { AddCryptoProps, UpdateCryptoProps } from './interfaces/crypto.models.interface'
 
 
 export const addCrypto = async (req: Request) => {
@@ -11,10 +12,9 @@ export const addCrypto = async (req: Request) => {
         const {
             symbol,
             quantity,
-            buyCost,
             date,
             sub
-        } = req.body
+        } : AddCryptoProps = req.body
 
         const apiData = await cryptoApiData(symbol)
         
@@ -25,7 +25,8 @@ export const addCrypto = async (req: Request) => {
         const totalValueOfCrypto = quantity * apiDataValue
 
         await createCryptoSummary(req.body)
-        await createUserCrypto( req.body, totalValueOfCrypto)
+        await createUserCrypto(req.body, totalValueOfCrypto)
+        await updateCryptoSummary(sub)
 
         const userInvestmentValue = await investmentValues(sub, date, totalValueOfCrypto)
 
@@ -40,9 +41,9 @@ export const addCrypto = async (req: Request) => {
 }
 
 
-export const createCryptoSummary = async ( req ) => {
+export const createCryptoSummary = async ( req: AddCryptoProps ) => {
 
-    const { sub, symbol, buyCost, quantity } = req
+    const { sub, symbol, quantity } = req
 
     let cryptoSummary = await Prisma.cryptoSummary.findUnique({
         where: { sub }
@@ -50,10 +51,14 @@ export const createCryptoSummary = async ( req ) => {
 
     if (!cryptoSummary) {
       // create a cryptoSummary for the user first time with default values. This will be updated later.
+
+      const apiData = await cryptoApiData(symbol)
+      const apiDataValue = apiData.data[symbol].quote.USD.price
+
       await Prisma.cryptoSummary.create({
         data: {
           sub,
-          totalValueOf: buyCost * quantity,
+          totalValueOf: apiDataValue * quantity,
           numberOfDifferent: 1,
           highestInvestedCurrency: symbol,
           highestValuePerCurrency: symbol,
@@ -66,15 +71,12 @@ export const createCryptoSummary = async ( req ) => {
       })
     }
 
-
-    await updateCryptoSummary(sub)
 }
-
 
 
 export const updateCryptoSummary = async (sub: string) => {
 
-      const listOfUserCrypto = await Prisma.userCrypto.findMany({
+    const listOfUserCrypto = await Prisma.userCrypto.findMany({
         where: { sub }
     })
 
@@ -88,40 +90,41 @@ export const updateCryptoSummary = async (sub: string) => {
         newestBoughtCurrency,
         oldestBoughtCurrency
 
-    if (listOfUserCrypto.length > 0) {
+    
+    if ( listOfUserCrypto.length > 0 ) {
 
-        totalValueOf = listOfUserCrypto.reduce((prev, curr) => {
-            return prev + curr.totalCryptoValue
-        }, 0)
+      totalValueOf = listOfUserCrypto.reduce((prev, curr) => {
+          return prev + curr.totalCryptoValue
+      }, 0)
 
-        numberOfDifferent = listOfUserCrypto.length
+      numberOfDifferent = listOfUserCrypto.length
 
-        highestInvestedCurrency = listOfUserCrypto.reduce((prev, curr) => prev.totalCryptoValue > curr.totalCryptoValue ? prev : curr).symbol
+      highestInvestedCurrency = listOfUserCrypto.reduce((prev, curr) => prev.totalCryptoValue > curr.totalCryptoValue ? prev : curr).symbol
 
-        highestValuePerCurrency = listOfUserCrypto.reduce((prev, curr) => prev.averageValuePerCrypto > curr.averageValuePerCrypto ? prev : curr).symbol
-        
-        lowestValuePerCurrency = listOfUserCrypto.reduce((prev, curr) => prev.averageValuePerCrypto < curr.averageValuePerCrypto ? prev : curr).symbol
-        
-        highestOwnedVolume = listOfUserCrypto.reduce((prev, curr) => prev.quantityOfCrypto > curr.quantityOfCrypto ? prev : curr).symbol
-        
-        lowestOwnedVolume = listOfUserCrypto.reduce((prev, curr) => prev.quantityOfCrypto < curr.quantityOfCrypto ? prev : curr).symbol
-        
-        newestBoughtCurrency = listOfUserCrypto.reduce((prev, curr) => new Date(prev.firstBought).getTime() > new Date(curr.firstBought).getTime() ? prev : curr).symbol
-        
-        oldestBoughtCurrency = listOfUserCrypto.reduce((prev, curr) => new Date(prev.firstBought).getTime() < new Date(prev.firstBought).getTime() ? prev : curr).symbol
+      highestValuePerCurrency = listOfUserCrypto.reduce((prev, curr) => prev.averageValuePerCrypto > curr.averageValuePerCrypto ? prev : curr).symbol
+
+      lowestValuePerCurrency = listOfUserCrypto.reduce((prev, curr) => prev.averageValuePerCrypto < curr.averageValuePerCrypto ? prev : curr).symbol
+
+      highestOwnedVolume = listOfUserCrypto.reduce((prev, curr) => prev.quantityOfCrypto > curr.quantityOfCrypto ? prev : curr).symbol
+
+      lowestOwnedVolume = listOfUserCrypto.reduce((prev, curr) => prev.quantityOfCrypto < curr.quantityOfCrypto ? prev : curr).symbol
+      
+      newestBoughtCurrency = listOfUserCrypto.reduce((prev, curr) => new Date(prev.firstBought).getTime() > new Date(curr.firstBought).getTime() ? prev : curr).symbol
+
+      oldestBoughtCurrency = listOfUserCrypto.reduce((prev, curr) => new Date(prev.firstBought).getTime() < new Date(prev.firstBought).getTime() ? prev : curr).symbol
 
     }
 
     const inputData = {
-        totalValueOf,
-        numberOfDifferent,
-        highestInvestedCurrency,
-        highestValuePerCurrency,
-        lowestValuePerCurrency,
-        highestOwnedVolume,
-        lowestOwnedVolume,
-        newestBoughtCurrency,
-        oldestBoughtCurrency,
+      totalValueOf,
+      numberOfDifferent,
+      highestInvestedCurrency,
+      highestValuePerCurrency,
+      lowestValuePerCurrency,
+      highestOwnedVolume,
+      lowestOwnedVolume,
+      newestBoughtCurrency,
+      oldestBoughtCurrency,
     }
 
     const cryptoSummary = await Prisma.cryptoSummary.update({
@@ -139,14 +142,16 @@ export const updateCrypto = async ( req: Request ) => {
       sub,
       symbol,
       quantity,
-      price,
       boughtOrSold,
       date
-    } = req.body
+    } : UpdateCryptoProps = req.body
 
     const existingUserCrypto = await Prisma.userCrypto.findFirst({
       where: { sub, symbol }
     })
+
+    const apiData = await cryptoApiData(symbol)
+    const apiDataValue = apiData.data[symbol].quote.USD.price
 
     if (!boughtOrSold && existingUserCrypto?.quantityOfCrypto === quantity) {
 
@@ -154,7 +159,7 @@ export const updateCrypto = async ( req: Request ) => {
         where: { sub, symbol }
       })
 
-      const valueToAdd = -quantity * price
+      const valueToAdd = -quantity * apiDataValue
       await updateCryptoSummary( sub )
       await investmentValues( sub, date, valueToAdd )
       await updateUserTotalInvestment( sub )
@@ -168,13 +173,13 @@ export const updateCrypto = async ( req: Request ) => {
     if (boughtOrSold) updatedQuantityOfCrypto = existingUserCrypto?.quantityOfCrypto as number + quantity
     if (!boughtOrSold) updatedQuantityOfCrypto = existingUserCrypto?.quantityOfCrypto as number - quantity
 
-    const updatedTotalCryptoValue = updatedQuantityOfCrypto * price
+    const updatedTotalCryptoValue = updatedQuantityOfCrypto * apiDataValue
 
     let updatedDate
     if (boughtOrSold) updatedDate = date
     if (!boughtOrSold) updatedDate = existingUserCrypto?.lastBought
 
-    const averageValuePerCrypto = (existingUserCrypto?.averageValuePerCrypto as number + price) / 2
+    const averageValuePerCrypto = (existingUserCrypto?.averageValuePerCrypto as number + apiDataValue) / 2
 
     const updatedCrypto = await Prisma.userCrypto.updateMany({
       where: { sub, symbol },
@@ -187,8 +192,8 @@ export const updateCrypto = async ( req: Request ) => {
     })
 
     let valueToAdd = 0
-    if (boughtOrSold) valueToAdd = quantity * price
-    if (!boughtOrSold) valueToAdd = -quantity * price
+    if (boughtOrSold) valueToAdd = quantity * apiDataValue
+    if (!boughtOrSold) valueToAdd = -quantity * apiDataValue
 
     await updateCryptoSummary( sub )
     await investmentValues( sub, updatedDate, valueToAdd )
