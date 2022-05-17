@@ -26,6 +26,7 @@ export const liveCommodities = async () => {
     //     ...energyData,
     //     ...grainsData
     // ]
+    return latestCommoditiesData
 }
 
 export const commoditiesList = async () => {

@@ -2,7 +2,7 @@ import { Request, Response } from 'express'
 import { iexApiStockList, iexApiStockQuotes } from "../helpers/urls"
 import { getRequest } from "../helpers/apiRequests"
 import { addStock, stockListModel, updateStock } from '../models/stock.models'
-import { stockCache } from '../middleware/node.cache'
+import { investmentsCache } from '../middleware/node.cache'
 
 export const getUserStocks = async (req: Request, res: Response) => {
 
@@ -33,7 +33,7 @@ export const getStockList = async (req: Request, res: Response) => {
       mostActive: stockListModel(mostActive.data),
     }
 
-    stockCache.set("stock", resData);
+    investmentsCache.set("stock", resData);
 
     res.status(200).send(resData)
   } catch (err) {
