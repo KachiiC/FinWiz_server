@@ -16,7 +16,7 @@ router.get('/user-stock/:stocklist', getUserStocks)
 router.get('/user-crypto/:cryptolist', getUserCrypto)
 router.get('/commodities-list', commoditiesListCache, getCommodities)
 router.get('/crypto-list/:cryptolist', stockListCache, getCryptoList)
-router.get('/stock-list/:type', stockListCache, getStockList)
+router.get('/stock-list', stockListCache, getStockList)
 router.get('/commodities-list', getCommodities)
 router.get('/news', newsListCache, getNewsList)
 
