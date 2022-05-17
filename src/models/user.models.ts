@@ -3,9 +3,7 @@ import Prisma from './index'
 export const investmentValues = async (sub: string, dateTime: Date, valueToAdd: number) => {
 
   const listOfUserInvestments = await Prisma.userInvestmentValues.findMany({
-    where: {
-      sub: sub
-    }
+    where: { sub }
   })
 
   let totalInvestmentValueToDate
@@ -16,7 +14,7 @@ export const investmentValues = async (sub: string, dateTime: Date, valueToAdd: 
     const lastInvestment = listOfUserInvestments[listOfUserInvestments.length - 1]
     const lastValue = lastInvestment.value
     totalInvestmentValueToDate = lastValue + valueToAdd
-    
+
   } else {
     // This is their 1st investment
     totalInvestmentValueToDate = valueToAdd
@@ -29,12 +27,11 @@ export const investmentValues = async (sub: string, dateTime: Date, valueToAdd: 
       value: totalInvestmentValueToDate
     }
   })
-  
 
   return userInvestmentValue
 }
 
-export const createUser = async ( sub: string ) => {
+export const createUser = async (sub: string) => {
 
   await Prisma.user.create({
     data: { sub: sub }
@@ -44,7 +41,7 @@ export const createUser = async ( sub: string ) => {
   return await getProfile(sub);
 }
 
-export const updateUserTotalInvestment = async ( sub: string ) => {
+export const updateUserTotalInvestment = async (sub: string) => {
 
   const listOfUserInvestments = await Prisma.userInvestmentValues.findMany({
     where: {
@@ -52,22 +49,22 @@ export const updateUserTotalInvestment = async ( sub: string ) => {
     }
   })
 
-  const highestInvestment = listOfUserInvestments[listOfUserInvestments.length -1].value
+  const highestInvestment = listOfUserInvestments[listOfUserInvestments.length - 1].value
 
-    await Prisma.user.update({
-      where: { sub: sub },
-      data: {
-        totalInvestmentValue: highestInvestment
-      }
-    })
+  await Prisma.user.update({
+    where: { sub: sub },
+    data: {
+      totalInvestmentValue: highestInvestment
+    }
+  })
 }
 
-export const getProfile = async ( sub: string ) => {
+export const getProfile = async (sub: string) => {
 
   const userProfile = await Prisma.user.findUnique({
     where: { sub: sub },
     include: {
-      investmentValues : true,
+      investmentValues: true,
       stocks: {
         include: {
           userStock: {
@@ -85,7 +82,16 @@ export const getProfile = async ( sub: string ) => {
             }
           }
         }
-      }
+      },
+      commodities: {
+        include: {
+          commoditiesList: {
+            include: {
+              details: true
+            }
+          }
+        }
+      },
     }
   })
 
