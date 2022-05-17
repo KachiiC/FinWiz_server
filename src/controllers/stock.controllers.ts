@@ -33,7 +33,7 @@ export const getStockList = async (req: Request, res: Response) => {
     res.status(200).send(resData)
   } catch (err) {
     console.error(err)
-    res.sendStatus(404)
+    res.sendStatus(500)
   }
 }
 
@@ -45,7 +45,7 @@ export const addUserStock = async (req: Request, res: Response) => {
     res.send('userRecord')
   } catch (err) {
     console.error('Error in addUserStock: ', err)
-    res.sendStatus(404)
+    res.sendStatus(500)
   }
 }
 
@@ -57,7 +57,7 @@ export const updateUserStocks = async (req: Request, res: Response) => {
     res.send('user stock updated')
   } catch (err) {
     console.error('Error in updateUserStocks: ', err)
-    res.sendStatus(404)
+    res.sendStatus(500)
   }
 }
 

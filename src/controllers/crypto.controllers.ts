@@ -20,7 +20,7 @@ export const getUserCrypto = async (req: Request, res: Response) => {
   }
   catch (err) {
     console.error(err)
-    res.sendStatus(404)
+    res.sendStatus(500)
   }
 
 }
@@ -33,7 +33,7 @@ export const addUserCrypto = async (req: Request, res: Response) => {
     res.send("created")
   } catch (err) {
     console.error('Error in addUserCrypto: ', err)
-    res.sendStatus(404)
+    res.sendStatus(500)
   }
 }
 
@@ -44,7 +44,7 @@ export const updateUserCrypto = async (req: Request, res: Response) => {
     res.send('user crypto updated')
   } catch (err) {
     console.error('Error in updateUserCrypto: ', err)
-    res.sendStatus(404)
+    res.sendStatus(500)
   }
 }
 
@@ -67,7 +67,7 @@ export const getCryptoList = async (req: Request, res: Response) => {
   }
   catch (err) {
     console.error(err)
-    res.sendStatus(404)
+    res.sendStatus(500)
   }
 
 }
