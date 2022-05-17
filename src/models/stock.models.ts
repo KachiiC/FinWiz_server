@@ -90,7 +90,7 @@ export const createStockSummary = async (sub: string) => {
 
 export const updateStockSummary = async (req: AddStockProps ) => {
 
-  const { symbol ,quantity, buyCost, sub } = req
+  const { symbol ,quantity, sub } = req
 
       const existingStockSummary = await Prisma.stockSummary.findUnique({
         where: { sub }
@@ -129,10 +129,14 @@ export const updateStockSummary = async (req: AddStockProps ) => {
     }
 
     if (!existingStockSummary) {
+
+      const apiData = await stockApiData(symbol)
+      const apiDataValue = apiData.data[symbol].quote.latestPrice
+      
       const newStockSummary = await Prisma.stockSummary.create({
         data: {
           sub,
-          currentTotalAmount: buyCost * quantity,
+          currentTotalAmount: apiDataValue * quantity,
           oldestStock: symbol,
           newestStock: symbol,
           stockWithMostShares: symbol,
