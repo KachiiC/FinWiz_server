@@ -53,13 +53,8 @@ export const createUserCrypto = async ( req: AddCryptoProps, totalCryptoValue: n
         }
       })
       return newUserCrypto
-    } else {
-
-      // Another userCrypto of this investment exists - update accordingly
-
-      return await updateUserCrypto(sub, symbol, buyCost, quantity)
     }
-  
+      return await updateUserCrypto(sub, symbol, buyCost, quantity)
 }
 
 export const updateUserCrypto = async (sub: string, symbol: string, newEntry: number, quantity: number) => {

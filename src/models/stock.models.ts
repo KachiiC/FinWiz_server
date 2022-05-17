@@ -57,8 +57,8 @@ export const addStock = async (req: Request) => {
 
         // Stock summary should be created first befor user stock to avoid foreign key issues
         await createStockSummary(sub)
-
         await createUserStock( req.body, totalValueOfShares)
+        await updateStockSummary( sub )
 
         const userInvestmentValue = await investmentValues(sub, date, totalValueOfShares)
 
@@ -85,8 +85,6 @@ export const createStockSummary = async (sub: string) => {
       })
     }
     
-    await updateStockSummary( sub )
-
 }
 
 export const updateStockSummary = async (sub: string ) => {
