@@ -34,7 +34,7 @@ export const cryptoUpdateOrCreate = async (req, data) => {
 
 export const createUserCrypto = async ( req: AddCryptoProps, totalCryptoValue: number ) => {
 
-    const {sub, symbol, buyCost, date, quantity } = req
+    const {sub, symbol, buyCost, date, quantity } : AddCryptoProps = req
 
     let userCrypto = await Prisma.userCrypto.findFirst({
       where: { sub: req.sub, symbol: req.symbol }

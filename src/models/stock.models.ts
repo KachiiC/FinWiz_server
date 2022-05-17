@@ -59,7 +59,7 @@ export const addStock = async (req: Request) => {
         // Stock summary should be created first befor user stock to avoid foreign key issues
         await createStockSummary(sub)
         await createUserStock( req.body, totalValueOfShares)
-        await updateStockSummary( sub )
+        await updateStockSummary( req.body )
 
         const userInvestmentValue = await investmentValues(sub, date, totalValueOfShares)
 
@@ -88,9 +88,16 @@ export const createStockSummary = async (sub: string) => {
     
 }
 
-export const updateStockSummary = async (sub: string ) => {
+export const updateStockSummary = async (req: AddStockProps ) => {
+
+  const { symbol ,quantity, buyCost, sub } = req
+
+      const existingStockSummary = await Prisma.stockSummary.findUnique({
+        where: { sub }
+      })
+
       const listOfUserStocks = await Prisma.userStock.findMany({
-        where: { sub: sub }
+        where: { sub }
     })
 
     let oldestStock,
@@ -121,9 +128,23 @@ export const updateStockSummary = async (sub: string ) => {
         highestInvestmentStock
     }
 
+    if (!existingStockSummary) {
+      const newStockSummary = await Prisma.stockSummary.create({
+        data: {
+          sub,
+          currentTotalAmount: buyCost * quantity,
+          oldestStock: symbol,
+          newestStock: symbol,
+          stockWithMostShares: symbol,
+          highestInvestmentStock: symbol
+        }
+      })
+      return newStockSummary
+    }
+
     // Should be a stockSummary because we created one if there isn't on Line 81
       const stockSummary = await Prisma.stockSummary.update({
-          where: { sub: sub },
+          where: { sub },
           data: { ...inputData }
       })
 
@@ -157,7 +178,7 @@ export const updateStock = async ( req: Request ) => {
       })
 
       const valueToAdd = -quantity * price
-      await updateStockSummary( sub )
+      await updateStockSummary( req.body )
       await investmentValues( sub, date, valueToAdd )
       await updateUserTotalInvestment( sub )
 
@@ -191,7 +212,7 @@ export const updateStock = async ( req: Request ) => {
       if (boughtOrSold) valueToAdd = quantity * price
       if (!boughtOrSold) valueToAdd = -quantity * price
 
-      await updateStockSummary( sub )
+      await updateStockSummary( req.body )
       await investmentValues( sub, updatedDate, valueToAdd )
       await updateUserTotalInvestment( sub )
       
