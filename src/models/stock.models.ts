@@ -158,7 +158,6 @@ export const updateStock = async ( req: Request ) => {
       sub,
       symbol,
       quantity,
-      price,
       boughtOrSold,
       date
     } : UpdateStockProps = req.body
@@ -171,13 +170,16 @@ export const updateStock = async ( req: Request ) => {
     const existingStock = existingStockArr[0]
     const existingStockNoOfShares = existingStock.numberOfShares
 
+    const apiData = await stockApiData(symbol)
+    const apiDataValue = apiData.data[symbol].quote.latestPrice
+
     if (!boughtOrSold && existingStockNoOfShares === quantity) {
       // User has sold off all shares of stock. Delete userStock
       const deletedStock = await Prisma.userStock.deleteMany({
         where: { sub, symbol }
       })
 
-      const valueToAdd = -quantity * price
+      const valueToAdd = -quantity * apiDataValue
       await updateStockSummary( req.body )
       await investmentValues( sub, date, valueToAdd )
       await updateUserTotalInvestment( sub )
@@ -191,7 +193,7 @@ export const updateStock = async ( req: Request ) => {
     if (boughtOrSold) updatedNoOfShares = existingStockNoOfShares + quantity
     if (!boughtOrSold) updatedNoOfShares = existingStockNoOfShares - quantity
 
-    const updatedTotalValueOfShares = updatedNoOfShares * price
+    const updatedTotalValueOfShares = updatedNoOfShares * apiDataValue
 
     let updatedDate
     if (boughtOrSold) updatedDate = date
@@ -201,7 +203,7 @@ export const updateStock = async ( req: Request ) => {
         where: { sub, symbol },
         data: {
           numberOfShares: updatedNoOfShares,
-          entryValuePerShare: price,
+          entryValuePerShare: apiDataValue,
           totalValueOfShares: updatedTotalValueOfShares,
           lastBought: updatedDate
         }
@@ -209,8 +211,8 @@ export const updateStock = async ( req: Request ) => {
    
    // Now need to update StockSummary, UserInvestmentValues and User
       let valueToAdd = 0
-      if (boughtOrSold) valueToAdd = quantity * price
-      if (!boughtOrSold) valueToAdd = -quantity * price
+      if (boughtOrSold) valueToAdd = quantity * apiDataValue
+      if (!boughtOrSold) valueToAdd = -quantity * apiDataValue
 
       await updateStockSummary( req.body )
       await investmentValues( sub, updatedDate, valueToAdd )

@@ -138,7 +138,6 @@ export const updateCrypto = async ( req: Request ) => {
       sub,
       symbol,
       quantity,
-      price,
       boughtOrSold,
       date
     } : UpdateCryptoProps = req.body
@@ -147,13 +146,16 @@ export const updateCrypto = async ( req: Request ) => {
       where: { sub, symbol }
     })
 
+    const apiData = await cryptoApiData(symbol)
+    const apiDataValue = apiData.data[symbol].quote.USD.price
+
     if (!boughtOrSold && existingUserCrypto?.quantityOfCrypto === quantity) {
 
       const deletedCrypto = await Prisma.userCrypto.deleteMany({
         where: { sub, symbol }
       })
 
-      const valueToAdd = -quantity * price
+      const valueToAdd = -quantity * apiDataValue
       await updateCryptoSummary( sub )
       await investmentValues( sub, date, valueToAdd )
       await updateUserTotalInvestment( sub )
@@ -167,13 +169,13 @@ export const updateCrypto = async ( req: Request ) => {
     if (boughtOrSold) updatedQuantityOfCrypto = existingUserCrypto?.quantityOfCrypto as number + quantity
     if (!boughtOrSold) updatedQuantityOfCrypto = existingUserCrypto?.quantityOfCrypto as number - quantity
 
-    const updatedTotalCryptoValue = updatedQuantityOfCrypto * price
+    const updatedTotalCryptoValue = updatedQuantityOfCrypto * apiDataValue
 
     let updatedDate
     if (boughtOrSold) updatedDate = date
     if (!boughtOrSold) updatedDate = existingUserCrypto?.lastBought
 
-    const averageValuePerCrypto = (existingUserCrypto?.averageValuePerCrypto as number + price) / 2
+    const averageValuePerCrypto = (existingUserCrypto?.averageValuePerCrypto as number + apiDataValue) / 2
 
     const updatedCrypto = await Prisma.userCrypto.updateMany({
       where: { sub, symbol },
@@ -186,8 +188,8 @@ export const updateCrypto = async ( req: Request ) => {
     })
 
     let valueToAdd = 0
-    if (boughtOrSold) valueToAdd = quantity * price
-    if (!boughtOrSold) valueToAdd = -quantity * price
+    if (boughtOrSold) valueToAdd = quantity * apiDataValue
+    if (!boughtOrSold) valueToAdd = -quantity * apiDataValue
 
     await updateCryptoSummary( sub )
     await investmentValues( sub, updatedDate, valueToAdd )
