@@ -19,16 +19,21 @@ export const getUserStocks = async (req: Request, res: Response) => {
 }
 
 export const getStockList = async (req: Request, res: Response) => {
-  const { type } = req.params
 
-  const url = iexApiStockList(type)
+  const stockUrl = (url: 'gainers' | 'losers' | 'mostactive') => getRequest(iexApiStockList(url))
 
   try {
-    const stockResponse = await getRequest(url)
+    const gainers = await stockUrl('gainers')
+    const losers = await stockUrl('losers')
+    const mostActive = await stockUrl('mostactive')
 
-    const resData = stockListModel(stockResponse.data)
+    const resData = {
+      gainers: stockListModel(gainers.data),
+      losers: stockListModel(losers.data),
+      mostActive: stockListModel(mostActive.data),
+    }
 
-    stockCache.set(type, resData);
+    stockCache.set("stock", resData);
 
     res.status(200).send(resData)
   } catch (err) {
