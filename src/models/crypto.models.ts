@@ -3,7 +3,7 @@ import { cryptoUpdateOrCreate, createUserCrypto } from '../helpers/crypto.helper
 import { cryptoApiData } from '../helpers/apiRequests'
 import Prisma from './index'
 import { investmentValues, updateUserTotalInvestment } from './user.models'
-import { AddCryptoProps } from './interfaces/crypto.models.interface'
+import { AddCryptoProps, UpdateCryptoProps } from './interfaces/crypto.models.interface'
 
 
 export const addCrypto = async (req: Request) => {
@@ -14,7 +14,7 @@ export const addCrypto = async (req: Request) => {
             quantity,
             date,
             sub
-        } = req.body
+        } : AddCryptoProps = req.body
 
         const apiData = await cryptoApiData(symbol)
         
@@ -141,7 +141,7 @@ export const updateCrypto = async ( req: Request ) => {
       price,
       boughtOrSold,
       date
-    } = req.body
+    } : UpdateCryptoProps = req.body
 
     const existingUserCrypto = await Prisma.userCrypto.findFirst({
       where: { sub, symbol }

@@ -4,6 +4,7 @@ import { stockApiData } from '../helpers/apiRequests'
 import Prisma from './index'
 import { investmentValues, updateUserTotalInvestment } from './user.models'
 import { currencyRounder, percentageCalculator } from '../helpers/priceHelpers'
+import { AddStockProps, UpdateStockProps } from './interfaces/stock.models.interface'
 
 
 export const stockListModel = (data: any[]) => {
@@ -45,7 +46,7 @@ export const addStock = async (req: Request) => {
             buyCost,
             date,
             sub
-        } = req.body
+        } : AddStockProps = req.body
 
         const apiData = await stockApiData(symbol)
 
@@ -139,7 +140,7 @@ export const updateStock = async ( req: Request ) => {
       price,
       boughtOrSold,
       date
-    } = req.body
+    } : UpdateStockProps = req.body
 
    // boughtOrSold (boolean -> true = bought, false = sold)
     const existingStockArr = await Prisma.userStock.findMany({

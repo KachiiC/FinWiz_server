@@ -71,7 +71,7 @@ export const updateUserCrypto = async (sub: string, symbol: string, newEntry: nu
       data: {
         quantityOfCrypto: totalNumberOfCrypto,
         averageValuePerCrypto: averageValuePerCrypto,
-        totalCryptoValue: totalNumberOfCrypto * averageValuePerCrypto,
+        totalCryptoValue: currencyRounder(totalNumberOfCrypto * averageValuePerCrypto),
         lastBought: new Date().toISOString()
       }
     })

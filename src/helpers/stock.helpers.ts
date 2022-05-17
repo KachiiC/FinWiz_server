@@ -1,5 +1,6 @@
 import Prisma from '../models'
 import { AddStockProps } from '../models/interfaces/stock.models.interface'
+import { currencyRounder } from './priceHelpers'
 
 export const stockFinder = async (symbol: string) => {
     return await Prisma.singleStock.findUnique({
@@ -74,7 +75,7 @@ export const updateUserStock = async (sub: string, symbol: string, newEntry: num
       symbol,
       entryValuePerShare: averageEntry,
       numberOfShares: totalNumberOfShares,
-      totalValueOfShares: totalNumberOfShares * averageEntry,
+      totalValueOfShares: currencyRounder(totalNumberOfShares * averageEntry),
       lastBought: new Date().toISOString()
     }
   })
