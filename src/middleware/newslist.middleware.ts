@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
-import { newsCache } from './node.cache';
+import { newsCache, userNewsCache } from './node.cache';
 
 export const newsListCache = (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -8,6 +8,19 @@ export const newsListCache = (req: Request, res: Response, next: NextFunction) =
         }
         return next();
     } catch (err) {
-        throw new Error;
+        res.status(500)
+        res.send(`Error in newsListCache: ${err}`)
     }
 };
+
+export const userNewsListCache = (req: Request, res: Response, next: NextFunction) => {
+    try {
+      if (userNewsCache.has("userNews")) {
+        return res.status(200).json(userNewsCache.get("userNews"))
+      }
+      return next();
+    } catch (err) {
+      res.status(500)
+      res.send(`Error in userNewsListCache: ${err}`)
+    }
+}
