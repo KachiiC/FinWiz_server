@@ -3,7 +3,7 @@ import { latestCommoditiesData } from "../data/commodities.data"
 import Prisma from "../models"
 import { Request } from "express"
 import { createUserCommodity } from "../helpers/commodities.helpers"
-import { investmentValues } from "./user.models"
+import { investmentValues, updateUserTotalInvestment } from "./user.models"
 
 export const liveCommodities = async () => {
 
@@ -34,7 +34,7 @@ export const commoditiesList = async () => {
     try {
         const currentCommodities = await Prisma.singleCommodity.findMany()
 
-        if (currentCommodities.length > 0) await Prisma.singleCommodity.deleteMany({})
+        if (currentCommodities.length > 0) return
 
         await Prisma.singleCommodity.createMany({
             data: latestCommoditiesData
@@ -62,7 +62,8 @@ export const addCommodity = async (req: Request) => {
         const apiData = latestCommoditiesData.find((commodity) => commodity.name === name)
 
         const totalValueOfCommodity = apiData?.last as number * quantity
-
+        
+        console.log('TOTAL VALUE OF COMMODITY', totalValueOfCommodity)
         await commoditiesList()
         
         await createCommoditiesSummary(req.body)
@@ -136,4 +137,74 @@ export const updateCommoditiesSummary = async (sub: string) => {
 
     return commoditiesSummary
 
+}
+
+export const updateCommodity = async (req: Request) => {
+
+  const {
+    sub,
+    name,
+    quantity,
+    boughtOrSold,
+    date
+  } = req.body
+
+  const existingCommodity = await Prisma.userCommodity.findFirst({
+    where: { sub, name }
+  })
+
+  const existingQuantity = existingCommodity?.quantityOfCommoditiy
+
+  const singleCommod = await Prisma.singleCommodity.findFirst({
+    where: { name }
+  })
+
+  const apiDataValue : number = singleCommod?.last as number
+
+  if (!boughtOrSold && existingQuantity === quantity) {
+    // User has sold off all quantity of this commodity. Delete userCommodity
+    const deletedUserCommodity = await Prisma.userCommodity.deleteMany({
+      where: { sub, name }
+    })
+
+    const valueToAdd = -quantity * apiDataValue
+    await updateCommoditiesSummary(sub)
+    await investmentValues(sub, date, valueToAdd)
+    await updateUserTotalInvestment(sub)
+
+    return deletedUserCommodity
+  }
+
+  // User has bought more commodity to add on
+
+  let updatedQuantity: number = 0
+
+  if (boughtOrSold) updatedQuantity = existingQuantity as number + quantity
+  if (!boughtOrSold) updatedQuantity = existingQuantity as number - quantity
+
+  const updatedTotalValue = updatedQuantity * apiDataValue
+
+  let updatedDate
+  if (boughtOrSold) updatedDate = date
+  if (!boughtOrSold) updatedDate = existingCommodity?.lastBought
+
+  const updatedUserCommod = await Prisma.userCommodity.updateMany({
+    where: { sub, name },
+    data: {
+      quantityOfCommoditiy: updatedQuantity,
+      totalCommodityValue: updatedTotalValue,
+      averageBuyPrice: apiDataValue,
+      lastBought: updatedDate
+    }
+  })
+
+  let valueToAdd = 0
+  if (boughtOrSold) valueToAdd = quantity * apiDataValue
+  if (!boughtOrSold) valueToAdd = -quantity * apiDataValue
+
+  await updateCommoditiesSummary(sub)
+  await investmentValues(sub, updatedDate, valueToAdd)
+  await updateUserTotalInvestment( sub )
+
+  return updatedUserCommod
 }
