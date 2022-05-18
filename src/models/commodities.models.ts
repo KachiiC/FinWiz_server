@@ -34,7 +34,7 @@ export const commoditiesList = async () => {
     try {
         const currentCommodities = await Prisma.singleCommodity.findMany()
 
-        if (currentCommodities.length > 0) await Prisma.singleCommodity.deleteMany({})
+        if (currentCommodities.length > 0) return
 
         await Prisma.singleCommodity.createMany({
             data: latestCommoditiesData
@@ -62,7 +62,8 @@ export const addCommodity = async (req: Request) => {
         const apiData = latestCommoditiesData.find((commodity) => commodity.name === name)
 
         const totalValueOfCommodity = apiData?.last as number * quantity
-
+        
+        console.log('TOTAL VALUE OF COMMODITY', totalValueOfCommodity)
         await commoditiesList()
         
         await createCommoditiesSummary(req.body)
