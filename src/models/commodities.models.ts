@@ -63,10 +63,11 @@ export const addCommodity = async (req: Request) => {
 
         const totalValueOfCommodity = apiData?.last as number * quantity
 
+        await commoditiesList()
+        
         await createCommoditiesSummary(req.body)
-
         await createUserCommodity(req.body, totalValueOfCommodity)
-
+        await updateCommoditiesSummary(sub)
         const userInvestmentValue = await investmentValues(sub, date, totalValueOfCommodity)
 
         await Prisma.user.update({
@@ -99,7 +100,7 @@ export const createCommoditiesSummary = async (req) => {
         })
     }
 
-    await updateCommoditiesSummary(sub)
+    
 }
 
 export const updateCommoditiesSummary = async (sub: string) => {
