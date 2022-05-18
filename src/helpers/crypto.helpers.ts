@@ -84,12 +84,12 @@ export const cryptoObjects = {
     "newest": newestCrypto
 }
 
-export const cryptoListSorter = (data) => {
+export const cryptoListSorter = (input) => {
 
-    const allKeys = Object.keys(data.data);
+    const allKeys = Object.keys(input.data);
 
     const cryptoData = allKeys.map((key) => {
-        const { name, symbol, quote, cmc_rank } = data.data[key]
+        const { name, symbol, quote, cmc_rank } = input.data[key]
         const { price, percent_change_1h, percent_change_24h, percent_change_7d, percent_change_30d } = quote.USD
         return {
             name,
