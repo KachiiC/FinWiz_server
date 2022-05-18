@@ -15,3 +15,5 @@ export const cryptoSymbolUrl = (crypto_list: string) => {
 } 
 
 export const newsUrl = () => `https://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=${process.env.NEWS_KEY}&totalResults=25`
+
+export const userNewsUrl = (topics: string) => `https://newsapi.org/v2/everything?q=${topics}&apiKey=${process.env.NEWS_KEY}`

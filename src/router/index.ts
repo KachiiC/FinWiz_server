@@ -5,9 +5,11 @@ import { getDummyStocks } from '../controllers/dummy.controllers';
 import { getUserProfile } from '../controllers/user.controller';
 // ROUTER
 import { Router } from 'express';
+
 import { commoditiesListCache, cryptoListCache, stockListCache } from '../middleware/investments.middleware';
-import { newsListCache } from '../middleware/newslist.middleware';
-import { getNewsList } from '../controllers/news.controllers';
+import { newsListCache, userNewsListCache } from '../middleware/newslist.middleware';
+import { getNewsList, getUserNewsList } from '../controllers/news.controllers';
+
 import { addUserCommodity, getCommodities } from '../controllers/commodities.controllers';
 
 const router = Router();
@@ -19,6 +21,7 @@ router.get('/crypto-list/', cryptoListCache, getCryptoList)
 router.get('/stock-list', stockListCache, getStockList)
 router.get('/commodities-list', getCommodities)
 router.get('/news', newsListCache, getNewsList)
+router.get('/user-news/:list', userNewsListCache, getUserNewsList)
 
 router.get('/user/:sub', getUserProfile)
 router.get('/test-user', getDummyStocks)
