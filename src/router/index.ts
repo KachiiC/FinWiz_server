@@ -10,7 +10,7 @@ import { commoditiesListCache, cryptoListCache, stockListCache } from '../middle
 import { newsListCache, userNewsListCache } from '../middleware/newslist.middleware';
 import { getNewsList, getUserNewsList } from '../controllers/news.controllers';
 
-import { addUserCommodity, getCommodities } from '../controllers/commodities.controllers';
+import { addUserCommodity, getCommodities, updateUserCommodity } from '../controllers/commodities.controllers';
 
 const router = Router();
 
@@ -31,5 +31,6 @@ router.post('/user-add-commodity', addUserCommodity)
 
 router.patch('/user-update-stock', updateUserStocks)
 router.patch('/user-update-crypto', updateUserCrypto)
+router.patch('/user-update-commodity', updateUserCommodity)
 
 export default router;
