@@ -1,10 +1,10 @@
 <img src="https://user-images.githubusercontent.com/32797002/169280194-9103ceac-adf5-42c7-bcb1-ba3803956c34.png" alt="FinWiz Logo" width="200"/>
 
 # FinWiz Server
-The server for [FinWiz Client](https://github.com/KachiiC/FinWiz_client) - the investment portfolio app. This is was a 2 week thesis project for the Codeworks coding bootcamp (Feb 2022 cohort). The collaborators for the whole project are Kachi Cheong, Silky Ng, Tom Broad and Nicholas Allen.
+The server for [FinWiz Client](https://github.com/KachiiC/FinWiz_client) - the investment portfolio app. This is was a 2 week thesis project for the [Codeworks](https://codeworks.me/) coding bootcamp (Feb 2022 cohort). The collaborators for the whole project are [Kachi Cheong](https://github.com/KachiiC), [Silky Ng](https://github.com/silkster87), [Tom Broad](https://github.com/MrBroadie) and [Nicholas Allen](https://github.com/nicallennn). A video presenting our app is [here](https://youtu.be/PwS7_ZV5BRI)
 
 ## Tech Stack Used
-We had used a node JS Express server, node-caching, with PostgreSQL for the database with Prisma ORM. API data is obtained from [CoinMarketCap](https://coinmarketcap.com/api/), [iex cloud](https://iexcloud.io/) and [News API](https://newsapi.org/)
+We had used a node JS Express server, [node-caching](https://github.com/node-cache/node-cache), with PostgreSQL for the database with [Prisma ORM](https://www.prisma.io/). API data is obtained from [CoinMarketCap](https://coinmarketcap.com/api/), [iex cloud](https://iexcloud.io/) and [News API](https://newsapi.org/)
 
 ## Setup Instructions
 
