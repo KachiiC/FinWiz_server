@@ -10,5 +10,4 @@ export const getUserProfile = async (req: Request, res: Response) => {
     console.error(err)
     res.sendStatus(404)
   }
-    
 }
