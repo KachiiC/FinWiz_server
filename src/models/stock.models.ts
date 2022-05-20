@@ -7,9 +7,7 @@ import { currencyRounder, percentageCalculator } from '../helpers/priceHelpers'
 import { AddStockProps, UpdateStockProps } from './interfaces/stock.models.interface'
 
 export const stockListModel = (data: any[]) => {
-
   return data.map((stock) => {
-
     const {
       symbol,
       companyName,
@@ -21,7 +19,7 @@ export const stockListModel = (data: any[]) => {
       marketCap
     } = stock
 
-    const changeAmountLogic = change ? change : latestPrice - previousClose
+    const changeAmountLogic = change || latestPrice - previousClose
     const changePercentLogic = changePercent ? changePercent * 100 : percentageCalculator(latestPrice, previousClose)
 
     return {
@@ -37,12 +35,10 @@ export const stockListModel = (data: any[]) => {
 }
 
 export const addStock = async (req: Request) => {
-
   try {
     const {
       symbol,
       quantity,
-      buyCost,
       date,
       sub
     }: AddStockProps = req.body
@@ -63,18 +59,16 @@ export const addStock = async (req: Request) => {
     const userInvestmentValue = await investmentValues(sub, date, totalValueOfShares)
 
     await Prisma.user.update({
-      where: { sub: sub },
+      where: { sub },
       data: { totalInvestmentValue: userInvestmentValue.value }
     })
-
   } catch (err) {
     console.error('Error in addUserStock: ', err)
   }
 }
 
 export const createStockSummary = async (sub: string) => {
-
-  let stockSummary = await Prisma.stockSummary.findUnique({
+  const stockSummary = await Prisma.stockSummary.findUnique({
     where: { sub }
   })
 
@@ -84,11 +78,9 @@ export const createStockSummary = async (sub: string) => {
       data: { sub }
     })
   }
-
 }
 
 export const updateStockSummary = async (req: AddStockProps) => {
-
   const { symbol, quantity, sub } = req
 
   const existingStockSummary = await Prisma.stockSummary.findUnique({
@@ -106,8 +98,7 @@ export const updateStockSummary = async (req: AddStockProps) => {
     highestInvestmentStock
 
   if (listOfUserStocks.length > 0) {
-
-    newestStock = listOfUserStocks.reduce((prev, curr) => new Date(prev.firstBought).getTime() > new Date(curr.firstBought).getTime() ? prev : curr).symbol;
+    newestStock = listOfUserStocks.reduce((prev, curr) => new Date(prev.firstBought).getTime() > new Date(curr.firstBought).getTime() ? prev : curr).symbol
 
     //! can just check if its the first stock bought and set it rather than looping through all stocks each time
     oldestStock = listOfUserStocks.reduce((prev, curr) => new Date(prev.firstBought).getTime() < new Date(curr.firstBought).getTime() ? prev : curr).symbol
@@ -128,7 +119,6 @@ export const updateStockSummary = async (req: AddStockProps) => {
   }
 
   if (!existingStockSummary) {
-
     const apiData = await stockApiData(symbol)
     const apiDataValue = apiData.data[symbol].quote.latestPrice
 
@@ -151,12 +141,10 @@ export const updateStockSummary = async (req: AddStockProps) => {
     data: { ...inputData }
   })
 
-
   return stockSummary
 }
 
 export const updateStock = async (req: Request) => {
-
   const {
     sub,
     symbol,

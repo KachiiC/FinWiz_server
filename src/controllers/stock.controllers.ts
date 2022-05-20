@@ -1,11 +1,10 @@
 import { Request, Response } from 'express'
-import { iexApiStockList, iexApiStockQuotes } from "../helpers/urls"
-import { getRequest } from "../helpers/apiRequests"
+import { iexApiStockList, iexApiStockQuotes } from '../helpers/urls'
+import { getRequest } from '../helpers/apiRequests'
 import { addStock, stockListModel, updateStock } from '../models/stock.models'
 import { investmentsCache } from '../middleware/node.cache'
 
 export const getUserStocks = async (req: Request, res: Response) => {
-
   const url = iexApiStockQuotes(req.params.stocklist)
 
   try {
@@ -19,7 +18,6 @@ export const getUserStocks = async (req: Request, res: Response) => {
 }
 
 export const getStockList = async (req: Request, res: Response) => {
-
   const stockUrl = (url: 'gainers' | 'losers' | 'mostactive') => getRequest(iexApiStockList(url))
 
   try {
@@ -30,10 +28,10 @@ export const getStockList = async (req: Request, res: Response) => {
     const resData = {
       gainers: stockListModel(gainers.data),
       losers: stockListModel(losers.data),
-      mostActive: stockListModel(mostActive.data),
+      mostActive: stockListModel(mostActive.data)
     }
 
-    investmentsCache.set("stock", resData);
+    investmentsCache.set('stock', resData)
 
     res.status(200).send(resData)
   } catch (err) {
@@ -43,7 +41,6 @@ export const getStockList = async (req: Request, res: Response) => {
 }
 
 export const addUserStock = async (req: Request, res: Response) => {
-
   try {
     await addStock(req)
     res.status(201)
@@ -55,7 +52,6 @@ export const addUserStock = async (req: Request, res: Response) => {
 }
 
 export const updateUserStocks = async (req: Request, res: Response) => {
-
   try {
     await updateStock(req)
     res.status(200)
@@ -65,4 +61,3 @@ export const updateUserStocks = async (req: Request, res: Response) => {
     res.sendStatus(500)
   }
 }
-

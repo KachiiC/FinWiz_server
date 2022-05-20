@@ -1,18 +1,18 @@
 // CONTROLLERS
-import { getStockList, getUserStocks, addUserStock, updateUserStocks } from '../controllers/stock.controllers';
-import { getUserCrypto, addUserCrypto, getCryptoList, updateUserCrypto } from '../controllers/crypto.controllers';
-import { getDummyStocks } from '../controllers/dummy.controllers';
-import { getUserProfile } from '../controllers/user.controller';
+import { getStockList, getUserStocks, addUserStock, updateUserStocks } from '../controllers/stock.controllers'
+import { getUserCrypto, addUserCrypto, getCryptoList, updateUserCrypto } from '../controllers/crypto.controllers'
+import { getDummyStocks } from '../controllers/dummy.controllers'
+import { getUserProfile } from '../controllers/user.controller'
 // ROUTER
-import { Router } from 'express';
+import { Router } from 'express'
 
-import { commoditiesListCache, cryptoListCache, stockListCache } from '../middleware/investments.middleware';
-import { newsListCache, userNewsListCache } from '../middleware/newslist.middleware';
-import { getNewsList, getUserNewsList } from '../controllers/news.controllers';
+import { commoditiesListCache, cryptoListCache, stockListCache } from '../middleware/investments.middleware'
+import { newsListCache, userNewsListCache } from '../middleware/newslist.middleware'
+import { getNewsList, getUserNewsList } from '../controllers/news.controllers'
 
-import { addUserCommodity, getCommodities, updateUserCommodity } from '../controllers/commodities.controllers';
+import { addUserCommodity, getCommodities, updateUserCommodity } from '../controllers/commodities.controllers'
 
-const router = Router();
+const router = Router()
 
 router.get('/user-stock/:stocklist', getUserStocks)
 router.get('/user-crypto/:cryptolist', getUserCrypto)
@@ -33,4 +33,4 @@ router.patch('/user-update-stock', updateUserStocks)
 router.patch('/user-update-crypto', updateUserCrypto)
 router.patch('/user-update-commodity', updateUserCommodity)
 
-export default router;
+export default router

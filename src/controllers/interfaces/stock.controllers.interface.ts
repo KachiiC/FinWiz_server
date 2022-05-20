@@ -20,5 +20,4 @@ export interface StocksListProps {
     highest_investment_total: number
     highest_value_stock_price: number
     lowest_value_stock_price: number
-
 }
