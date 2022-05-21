@@ -4,7 +4,7 @@ export const cryptoHeaders = (key: string) => {
   }
 }
 
-export const commditiesHeaders = (key: string) => {
+export const commoditiesHeaders = (key: string) => {
   return {
     'content-type': 'application/x-www-form-urlencoded',
     'X-RapidAPI-Host': 'investing4.p.rapidapi.com',

@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 import axios from 'axios'
-import { commditiesHeaders } from './headers'
+import { commoditiesHeaders } from './headers'
 import Prisma from '../models'
 
 export const commoditiesFetch = async (type: string) => {
@@ -12,7 +12,7 @@ export const commoditiesFetch = async (type: string) => {
     const options = {
       method: 'POST',
       url: 'https://investing4.p.rapidapi.com/commodities/overview',
-      headers: commditiesHeaders(process.env.COMMODITIES_KEY || ''),
+      headers: commoditiesHeaders(process.env.COMMODITIES_KEY || ''),
       data: encodedParams
     }
 
