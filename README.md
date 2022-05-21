@@ -13,11 +13,28 @@ We had used a node JS Express server, [node-caching](https://github.com/node-cac
 ```bash
    git clone https://github.com/KachiiC/FinWiz_server.git
 ``` 
-
 2. At the root directory run ``npm i`` 
 
 3. Create a `.env` file in the `src` directory.
-4. Create environment variables for `DATABASE_URL`, `STOCK_KEY`, `COINCAP_KEY` and `NEWS_KEY`. The database url (create database name beforehand) should be a PostgreSQL database of the format: `postgresql://username:password@localhost:5432/databasename?schema=public`. The stock API key can be obtained by signing up to [iex cloud](https://iexcloud.io/). The coincap API key can be obtained by signing up to [CoinMarketCap](https://coinmarketcap.com/api/). The news API key on [News API](https://newsapi.org/)
-5. Run the Prisma database migration <code>npx prisma migrate dev --name callWhatever</code>
+4. Create environment variables for `DATABASE_URL`, `STOCK_KEY`, `COINCAP_KEY` and `NEWS_KEY`:
+```env
+  DATABSE_URL=
+  STOCK_KEY=
+  COINCAP_KEY=
+  NEWS_KEY=
+```
+
+ The `DATABASE_URL` (create database name beforehand) should be a PostgreSQL database of the format: `postgresql://username:password@localhost:5432/databasename?schema=public`. 
+ 
+ The stock API key can be obtained by signing up to [iex cloud](https://iexcloud.io/). 
+ 
+ The coincap API key can be obtained by signing up to [CoinMarketCap](https://coinmarketcap.com/api/). 
+ 
+ The news API key on [News API](https://newsapi.org/)
+ 
+5. Run the Prisma database migration 
+```bash
+  npx prisma migrate dev --name callWhatever
+```
 6. Run <code>npm run start</code>
 7. This server is to be used with the [FinWiz Client](https://github.com/KachiiC/FinWiz_client)
