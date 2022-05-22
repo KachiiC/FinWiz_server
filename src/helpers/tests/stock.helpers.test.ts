@@ -11,12 +11,7 @@ test('should find unique single stock from symbol ', async () => {
   }
   // @ts-ignore
   prismaMock.singleStock.findUnique.mockResolvedValue(appleStock)
-  await expect(stockHelpers.stockFinder('AAPL')).resolves.toEqual({
-    id: 1,
-    symbol: 'AAPL',
-    name: 'Apple Inc',
-    marketValuePerShare: 200
-  })
+  await expect(stockHelpers.stockFinder('AAPL')).resolves.toEqual(appleStock)
 })
 
 test('should format the api data of stock ', () => {
@@ -86,7 +81,7 @@ test('should create a user stock if it does not exist', async () => {
   prismaMock.userStock.findFirst.mockResolvedValue(null)
   // @ts-ignore
   prismaMock.userStock.create.mockResolvedValue(mockUserStock)
-  await expect(stockHelpers.createUserStock(mockReqBody, 340))
+  await expect(stockHelpers.createUserStock(mockReqBody, 340)).resolves.toEqual(mockUserStock)
 })
 
 test('should update a user stock if it exists', async () => {

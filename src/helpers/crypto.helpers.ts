@@ -10,7 +10,7 @@ export const cryptoFinder = async (symbol: string) => {
   })
 }
 
-export const cryptoApiFormatter = (data, symbol) => {
+export const cryptoApiFormatter = (data, symbol: string) => {
   const marketValuePerCrypto = data.data[symbol].quote.USD.price
   const name = data.data[symbol].name
 
